@@ -34,7 +34,7 @@ jobs:
         npm ci
     - name: Kill previous process
       run: |
-        fuser -k 8000/tcp
+        npx kill-port 8000
     - name: Start the server
       run: |
         npm run start:server

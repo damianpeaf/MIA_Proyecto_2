@@ -17,12 +17,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install python dependencies  
+      run: |
+        pip install -r requirements.txt
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm ci
-    - run: npm run client:build --if-present
+    - name: Install node dependencies
+      run: |
+        npm ci
+    - name: Start the server
+      run: |
+        npm run start:server
 
-  
+    

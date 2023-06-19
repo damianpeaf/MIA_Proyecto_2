@@ -1,4 +1,5 @@
 from analyzer.lexer import lexer
+from fastapi import FastAPI
 
 lexer.input('ls -l -a -h -s "hola mundo"')
 
@@ -8,4 +9,10 @@ while True:
         break  # No more input
     print(tok)
 
-print("proyecto 2 MIA")
+
+app = FastAPI()
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}

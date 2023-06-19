@@ -1,2 +1,8 @@
+from fastapi import FastAPI
 
-print("proyecto 2 MIA")
+app = FastAPI()
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}

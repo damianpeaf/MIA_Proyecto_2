@@ -1,5 +1,5 @@
 import { Toaster } from "react-hot-toast"
-import { LoginPage } from "./pages"
+import { DashboardPage, LoginPage } from "./pages"
 import { useMediaQuery } from "./hooks";
 
 export const App = () => {
@@ -15,7 +15,8 @@ export const App = () => {
         position={
           largeScreen ? 'top-right' : 'bottom-center'
         } />
-      <LoginPage />
+      {/* <LoginPage /> */}
+      <DashboardPage />
     </>
   )
 }

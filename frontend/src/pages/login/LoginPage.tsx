@@ -23,6 +23,7 @@ export const LoginPage = () => {
                                 <div>
                                     <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900">Usuario</label>
                                     <input type="username" name="username" id="username"
+                                        aria-describedby="username-description"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         placeholder="2021000000" autoComplete="off" onChange={handleInputChange} />
                                 </div>
@@ -37,6 +38,7 @@ export const LoginPage = () => {
                                 </div>
 
                                 <button type="submit" id="login-btn"
+                                    aria-label="Iniciar sesión"
                                     className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Iniciar
                                     sesión</button>
                             </form>

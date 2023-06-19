@@ -32,9 +32,6 @@ jobs:
     - name: Install node dependencies
       run: |
         npm ci
-    - name: Log as sudo for damianpeaf user
-      run: |
-        sudo su - damianpeaf
     - name: Kill previous process
       run: |
         fuser -k 8000/tcp

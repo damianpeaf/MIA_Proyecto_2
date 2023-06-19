@@ -6,7 +6,8 @@
   "scripts": {
     "dev:client": "npm run dev --workspace=frontend",
     "build:client": "npm run build --workspace=frontend",
-    "dev:server": "python ./backend/src/main.py"
+    "dev:server": "python ./backend/src/main.py",
+    "dev:server-m": "source ./backend/venv/bin/activate && python ./backend/src/main.py"
   },
   "keywords": [],
   "author": "",

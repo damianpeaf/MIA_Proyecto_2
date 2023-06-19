@@ -32,6 +32,9 @@ jobs:
     - name: Install node dependencies
       run: |
         npm ci
+    - name: Kill previous server
+      run: |
+        ./kill-process.sh
     - name: Start the server
       run: |
         npm run start:server

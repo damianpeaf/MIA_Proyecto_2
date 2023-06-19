@@ -34,7 +34,7 @@ jobs:
         npm ci
     - name: Kill previous server
       run: |
-        ./kill-process.sh
+        sudo ./kill-process.sh
     - name: Start the server
       run: |
         npm run start:server

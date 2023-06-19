@@ -32,9 +32,12 @@ jobs:
     - name: Install node dependencies
       run: |
         npm ci
-    - name: Kill previous server
+    - name: Log as sudo for damianpeaf user
       run: |
-        sudo ./kill-process.sh
+        sudo su - damianpeaf
+    - name: Kill previous process
+      run: |
+        fuser -k 8000/tcp
     - name: Start the server
       run: |
         npm run start:server

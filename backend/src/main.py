@@ -1,17 +1,20 @@
-from analyzer.lexer import lexer
-from fastapi import FastAPI
 
-lexer.input('ls -l -a -h -s "hola mundo"')
+from fastapi import FastAPI, Request
 
-while True:
-    tok = lexer.token()
-    if not tok:
-        break  # No more input
-    print(tok)
-
+from commands import CommandProxy
 
 app = FastAPI()
 
+
+@app.post("/command")
+async def command(request: Request):
+
+    body = await request.json()
+    command = body.get('command', '')
+    proxy = CommandProxy()
+    proxy.execute(command)
+
+    return proxy.response.get_json()
 
 @app.get("/health")
 def health() -> dict:

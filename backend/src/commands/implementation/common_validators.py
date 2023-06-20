@@ -26,6 +26,36 @@ def is_bool(value: str):
     else:
         return False
 
+def is_ip(value: str):
+
+    # eg: 3.144.137.114
+    if value is None:
+        return False
+    
+    if len(value.split('.')) != 4:
+        return False
+    
+    for part in value.split('.'):
+        if not part.isdigit():
+            return False
+        
+        if int(part) < 0 or int(part) > 255:
+            return False
+        
+    return True
+
+def is_port(value: str):
+    
+        if value is None:
+            return False
+    
+        if not value.isdigit():
+            return False
+    
+        if int(value) < 0 or int(value) > 65535:
+            return False
+    
+        return True
 
 def path_exists(value: str) -> bool:
     return True if path.exists(value) else False
@@ -57,4 +87,4 @@ def get_enviroment(value: str):
     elif value.lower() == CommandEnvironment.SERVER.name.lower():
         return CommandEnvironment.SERVER
     
-    return None
+    raise Exception(f"Invalid enviroment: {value}, incorrect validation")

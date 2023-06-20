@@ -2,14 +2,9 @@ from .common_validators import is_path, is_enviroment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 
-create_validations = [
-    {
+rename_validations = [
+     {
         "param_name": "name",
-        "obligatory": True,
-        "validator": lambda x: True
-    },
-    {
-        "param_name": "body",
         "obligatory": True,
         "validator": lambda x: True
     },
@@ -26,19 +21,18 @@ create_validations = [
 ]
 
 
-class CreateCommand(CommandStrategy):
+class RenameCommand(CommandStrategy):
 
     def __init__(self, args: dict[str, str], response : CommandResponse):
-        super().__init__("create", args,  create_validations, response)
+        super().__init__("rename", args,  rename_validations, response)
 
     def execute(self):
-       
-        name = self.args.get('name')
-        path = self.args.get('path')
-        body = self.args.get('body')
+        
+        path = self.args.get("path")
+        name = self.args.get("name")
         enviroment = get_enviroment(self.args.get('type'))
 
         service = self.get_service_adapter(enviroment)
 
-        resp = service.create_file(name, path, body)
+        resp = service.rename_resource(path, name)
         self.register_execution(resp)

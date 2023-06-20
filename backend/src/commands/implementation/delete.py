@@ -1,4 +1,4 @@
-from .common_validators import is_path, is_enviroment
+from .common_validators import is_path, is_enviroment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 
@@ -27,4 +27,12 @@ class DeleteCommand(CommandStrategy):
         super().__init__("delete", args,  delete_validations, response)
 
     def execute(self):
-       self.success('')
+       
+        name = self.args.get('name')
+        path = self.args.get('path')
+        enviroment = get_enviroment(self.args.get('type'))
+
+        service = self.get_service_adapter(enviroment)
+
+        resp = service.delete_file(name, path)
+        self.register_execution(resp)

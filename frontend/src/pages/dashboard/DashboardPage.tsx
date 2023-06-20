@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { createRef, useEffect, useState } from "react";
 
 export const DashboardPage = () => {
 
     const [consoleOutput, setConsoleOutput] = useState<string>('')
+
+    const consoleRef = createRef<HTMLDivElement>();
 
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,10 +16,14 @@ export const DashboardPage = () => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (e.currentTarget.value === '') return;
-            if (e.currentTarget.value === 'ls') {
+            const command = e.currentTarget.value;
+            if (command === '') return;
+            if (command === 'clear') {
                 setConsoleOutput('')
+                e.currentTarget.value = ''
+                return;
             }
+
             // Concat new line if there is already text
             setConsoleOutput(
                 consoleOutput.length > 0 ?
@@ -29,6 +35,13 @@ export const DashboardPage = () => {
 
         }
     }
+
+    useEffect(() => {
+        // Desplazar el scroll al final del div cuando se actualice el contenido
+        if (consoleRef.current) {
+            consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
+        }
+    }, [consoleOutput, consoleRef]);
 
     return (
         <>
@@ -44,10 +57,14 @@ export const DashboardPage = () => {
                 </div>
                 <div className="flex flex-col w-full p-4 gap-4 h-3/4">
                     {/* Output console */}
-                    <div className="border border-gray-300 rounded flex-1 p-2 bg-gray-100 overflow-y-auto">
+                    <div className="border border-gray-300 rounded flex-1 p-2 bg-gray-100 overflow-y-auto" ref={consoleRef}>
                         {
                             consoleOutput.split('\n').map((line, index) => {
-                                return <p key={index}>{line}</p>
+                                return <p key={index}>
+                                    {
+                                        `>> ${line}`
+                                    }
+                                </p>
                             }
                             )
                         }

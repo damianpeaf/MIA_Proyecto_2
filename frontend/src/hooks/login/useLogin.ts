@@ -15,10 +15,12 @@ export const useLogin = () => {
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
+        const { username, password } = user
         // TODO: Send user to backend
-        console.log(
-            `Carnet: ${user.username}\nPassword: ${user.password}`
-        )
+        if (username === "" || password === "") {
+            toast.error("Please fill in all fields")
+            return
+        }
 
         // Reset form
         setUser(initialUser)
@@ -26,6 +28,7 @@ export const useLogin = () => {
 
         // Show toast
         toast.success("Login successful")
+
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

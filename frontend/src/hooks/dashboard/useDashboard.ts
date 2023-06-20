@@ -1,4 +1,6 @@
-import { createRef, useState } from "react"
+import { useState } from "react"
+import { readFiles } from "../../utils";
+import toast from 'react-hot-toast';
 
 export interface ConsoleOutputI {
     command: string;
@@ -35,17 +37,25 @@ const initialConsoleOutput: ConsoleOutputI[] = [
     }
 ]
 
-export const useConsole = () => {
+export const useDashboard = () => {
 
     // This state will be used to store the console output from the backend, use an array of objects
-    // 
+
     const [consoleOutput, setConsoleOutput] = useState<ConsoleOutputI[]>(initialConsoleOutput)
-    const consoleRef = createRef<HTMLDivElement>();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-        console.log(files);
+        readFiles(files).then((data) => {
+            console.log(data);
+            toast.success('Archivo cargado correctamente')
+        }
+
+        ).catch((error) => {
+            console.log(error);
+            toast.error('Error al cargar el archivo')
+        }
+        );
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -74,10 +84,25 @@ export const useConsole = () => {
         }
     }
 
+    const handleLogout = () => {
+        console.log('Logout')
+    }
+
+    const handleExecuteCommand = () => {
+        // setConsoleOutput(
+        //     prev => prev.concat(
+        //         data[0].split('\n').map((line) => {
+        //             return { 'command': line }
+        //         }
+        //         )
+        //     ))
+    }
+
     return {
         consoleOutput,
-        consoleRef,
+        handleExecuteCommand,
         handleFileChange,
-        handleKeyDown
+        handleKeyDown,
+        handleLogout
     }
 }

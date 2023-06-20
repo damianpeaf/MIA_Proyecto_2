@@ -27,8 +27,8 @@ export const DashboardPage = () => {
                     {/* Output console */}
                     <div className="flex overflow-y-auto flex-col-reverse border border-gray-300 rounded flex-1 bg-gray-100 " ref={consoleRef}>
                         {
-                            consoleOutput.slice().reverse().map(({ command, type, response }, index) => (
-                                <ConsoleOutput key={index} command={command} type={type} response={response} />
+                            consoleOutput.slice().reverse().map(({ command, response }, index) => (
+                                <ConsoleOutput key={index} command={command} response={response} />
                             )
                             )
                         }

@@ -2,30 +2,36 @@ import { createRef, useState } from "react"
 
 export interface ConsoleOutputI {
     command: string;
+    response?: ConsoleOutputResponse[];
+}
+
+interface ConsoleOutputResponse {
+    text: string;
     type: 'warning' | 'error' | 'success' | 'info';
-    response?: string[];
+    'io_type'?: 'input' | 'output';
+    'date'?: '2021-10-10 10:10:10';
 }
 
 const initialConsoleOutput: ConsoleOutputI[] = [
     {
         'command': 'create -name->prueba1.txt -path->/carpeta1/ -body->”Este es el contenido del archivo 1” -type->server',
-        'type': 'info',
-        'response': ['This is a test info message', 'Prueba create']
+        'response': [
+            { 'text': 'This is a test info message', 'type': 'info', },
+            { 'text': 'This is a test info message', 'type': 'warning', },
+            { 'text': 'This is a test info message', 'type': 'error', },
+            { 'text': 'This is a test info message', 'type': 'success', }]
     },
     {
         'command': 'delete -path->/carpeta1/ -name->prueba1.txt -type->server',
-        'type': 'warning',
-        'response': ['This is a test warning message']
+        'response': [{ 'text': 'This is a test info message', 'type': 'warning', }]
     },
     {
         'command': 'Copy -from->/carpeta1/prueba1.txt -to->/”carpeta 2”/ -type_to->sever -type_from->bucket',
-        'type': 'error',
-        'response': ['OUTPUT - La ruta no existe']
+        'response': [{ 'text': 'This is a test info message', 'type': 'error', }]
     },
     {
         'command': 'Backup -type_to->server -type_from->bucket -name->”copia_1 G7”',
-        'type': 'success',
-        'response': ['OUTPUT - Se ha creado el backup']
+        'response': [{ 'text': 'This is a test info message', 'type': 'success', }]
     }
 ]
 
@@ -58,8 +64,7 @@ export const useConsole = () => {
             // Concat new line if there is already text
             setConsoleOutput(prev => prev.concat({
                 'command': command,
-                'type': 'success',
-                'response': ['This is a test success message']
+                'response': [{ 'text': 'This is a test info message', 'type': 'info', }]
             }))
 
 

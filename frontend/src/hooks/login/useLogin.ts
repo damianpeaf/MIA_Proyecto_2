@@ -1,11 +1,14 @@
 import { useContext, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { AuthContext } from "../../context/AuthContext"
+import fetchLogin from "../../api/authAPI"
 
 const initialUser = {
     username: "",
     password: ""
 }
+
+
 
 export const useLogin = () => {
     const [user, setUser] = useState(initialUser)
@@ -14,20 +17,26 @@ export const useLogin = () => {
     // Reference to form
     const form = useRef<HTMLFormElement>(null)
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        // const { username, password } = user
-        // TODO: connect to backend
-
-        // Set isAuthorized to true
-        setIsAuthorized(true)
+        const { username, password } = user
 
         // Reset form
         setUser(initialUser)
         form.current?.reset()
 
-        // Show toast
+        // Fetch data from API
+        const response = await fetchLogin(username, password)
+
+        if (!response) {
+            toast.error("Usuario o contraseña incorrectos")
+            return
+        }
+
+
+        // Set isAuthorized to true
+        setIsAuthorized(true)
         toast.success("Inicio de sesión exitoso")
 
     }

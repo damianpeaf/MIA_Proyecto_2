@@ -1,17 +1,16 @@
-// import { ConsoleOutputResponse } from "../hooks";
-
-const baseUrl = 'http://127.0.0.1:8000/command';
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 // Fetch data from API
 
-const fetchCommand = async (commands: string) => {
-    const response = await fetch(baseUrl, {
+const fetchCommand = async (command: string) => {
+    const url = `${baseUrl}/command`
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "command": commands
+            "command": command
         })
     })
     const data = await response.json()

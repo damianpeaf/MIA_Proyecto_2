@@ -2,25 +2,9 @@ import { useContext, useRef, useState } from "react"
 import { readFiles } from "../../utils";
 import { AuthContext } from "../../context";
 import toast from 'react-hot-toast';
-import fetchCommand from "../../api/projectAPI";
+import fetchCommand from "../../api/commandAPI";
+import { ConsoleOutputI, ConsoleOutputResponse } from "../../api/api.types";
 
-export interface ConsoleOutputI {
-    command: string;
-    response?: ConsoleOutputResponse;
-}
-
-export interface ConsoleOutputResponse {
-    data: {
-        'file_content'?: string;
-    },
-    output:
-    {
-        date: string;
-        io_type: 'INPUT' | 'OUTPUT';
-        message: string;
-        msg_type: 'INFO' | 'ERROR' | 'WARNING' | 'SUCCESS';
-    }[]
-}
 
 
 const initialConsoleOutput: ConsoleOutputI[] = []

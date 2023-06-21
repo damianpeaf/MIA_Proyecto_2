@@ -7,34 +7,54 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-frontend:
+  deploy-to-production:
 
+    name: Deploy to AWS EC2 🚀
     runs-on: self-hosted
+    environment: production
 
     strategy:
       matrix:
         node-version: [18.x]
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - name: Checkout code 🤖
+      uses: actions/checkout@v3
+
+    - name: Setup python 🐍
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
-    - name: Install python dependencies  
+
+    - name: Install python dependencies 😎
       run: |
         pip install -r requirements.txt
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node-version }} 🎩
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Install node dependencies
+        
+    - name: Install node dependencies 📦
       run: |
         npm ci
-    - name: Kill previous process
+
+    - name: Kill previous process 🧨
       run: |
         npx kill-port 8000
+
+    - name: Create .env 🦧
+      uses: SpicyPizza/create-envfile@v2.0
+      with:
+        envkey_ENV_AWS_ACCESS_KEY_ID: ${{ secrets.ENV_AWS_ACCESS_KEY_ID }}
+        envkey_ENV_AWS_SECRET_ACCESS_KEY: ${{ secrets.ENV_AWS_SECRET_ACCESS_KEY }}
+        envkey_ENV_AWS_REGION: ${{ secrets.ENV_AWS_REGION }}
+        envkey_ENV_AWS_BUCKET_NAME: ${{ secrets.ENV_AWS_BUCKET_NAME }}
+        directory: 'backend/src'
+        file_name: '.env'
+        fail_on_empty: true
+
     - name: Start the server
       run: |
         npm run start:server

@@ -1,3 +1,11 @@
+class ParseError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
+
 from ply.yacc import yacc
 
 from analyzer import lexer
@@ -39,7 +47,12 @@ def p_parameter(p):
 
 
 def p_error(p):
-    print(f'Syntax error {p.value!r}, line {p.lineno}', p)
+
+    if p:
+        raise ParseError(f'Error al parsear {p.value!r}')
+
+    raise ParseError('Error al parsear')
+
 
 
 parser = yacc()

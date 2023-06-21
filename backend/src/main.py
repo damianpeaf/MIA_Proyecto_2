@@ -58,3 +58,8 @@ async def auth(request: AuthRequest):
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/")
+def root() -> dict:
+    return {"message": "Hello World"}

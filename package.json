@@ -7,7 +7,7 @@
     "dev:client": "npm run dev --workspace=frontend",
     "build:client": "npm run build --workspace=frontend",
     "dev:server": "cd ./backend/src && uvicorn main:app --reload",
-    "start:server": "cd ./backend/src && uvicorn main:app",
+    "start:server": "cd ./backend/src && RUNNER_TRACKING_ID=\"\" && uvicorn main:app --port 8000 &",
     "build": "npm run build --workspace=frontend && copyfiles -u 1 ./frontend/dist/**/* ./backend/src"
   },
   "keywords": [],

@@ -32,6 +32,9 @@ jobs:
     - name: Install node dependencies
       run: |
         npm ci
+    - name: Kill previous process
+      run: |
+        npx kill-port 8000
     - name: Start the server
       run: |
         npm run start:server

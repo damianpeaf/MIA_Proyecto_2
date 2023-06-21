@@ -1,8 +1,9 @@
-from os import path
+from os import path, getcwd
 
 from utils import aes_encryption, aes_decryption
-from commands import LOCAL_BASE_PATH, CommandResponse, IOType
+from commands import CommandResponse, IOType
 
+LOCAL_BASE_PATH = path.abspath(getcwd())
 USERS_FILE = 'miausuarios.txt'
 AES_KEY = 'miaproyecto12345'
 
@@ -18,13 +19,19 @@ True if the username and password are valid, False otherwise.
 """
 
 
-def validate_user(username: str = '', password: str = '') -> bool:
+def validate_user(username: str = '', password: str = '') -> dict:
 
-    CommandResponse.info('Intento de inicio de sesión del usuario: ' + username, IOType.AUTH)
+    response = CommandResponse()
+
+    response.info('Intento de inicio de sesión del usuario: ' + username, IOType.AUTH)
 
     if not path.exists(path.join(LOCAL_BASE_PATH, USERS_FILE)):
-        CommandResponse.error('El archivo de usuarios no existe.', IOType.AUTH)
-        return False
+        response.error('El archivo de usuarios no existe.', IOType.AUTH)
+        return {
+            'username': username,
+            'ok': False,
+            'response': response
+        }
 
     with open(path.join(LOCAL_BASE_PATH, USERS_FILE), 'r') as users_file:
         lines = users_file.readlines()
@@ -41,17 +48,19 @@ def validate_user(username: str = '', password: str = '') -> bool:
             # If the username was found, check the password
             if username_found:
                 if line.strip().upper() == aes_encryption(AES_KEY, password).upper():
-                    CommandResponse.info('Inicio de sesión exitoso del usuario: ' + username, IOType.AUTH)
+                    response.success('Inicio de sesión exitoso del usuario: ' + username, IOType.AUTH)
                     return {
                         'username': username,
-                        'ok': True
+                        'ok': True,
+                        'response': response
                     }
 
                 # If the password was not found, return False
-                CommandResponse.error('Contraseña incorrecta para el usuario: ' + username, IOType.AUTH)
+                response.error('Contraseña incorrecta para el usuario: ' + username, IOType.AUTH)
                 return {
                     'username': username,
-                    'ok': False
+                    'ok': False,
+                    'response': response
                 }
             elif check:
                 if line.strip() == username.strip():
@@ -59,8 +68,9 @@ def validate_user(username: str = '', password: str = '') -> bool:
 
             check = not check
 
-    CommandResponse.error('El usuario no existe: ' + username, IOType.AUTH)
+    response.error('El usuario no existe: ' + username, IOType.AUTH)
     return {
         'username': username,
-        'ok': False
+        'ok': False,
+        'response': response
     }

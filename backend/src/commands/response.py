@@ -38,7 +38,7 @@ class CommandResponse:
             'msg_type': msg_type.name,
             'message': message,
             'io_type': io_type.name,
-            'date': datetime.now(),
+            'date': str(datetime.now())
         })
 
 

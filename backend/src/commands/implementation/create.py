@@ -40,5 +40,5 @@ class CreateCommand(CommandStrategy):
 
         service = self.get_service_adapter(enviroment)
 
-        resp = service.create_file(name, path, body)
+        resp = service.create_file(path, name, body)
         self.register_execution(resp)

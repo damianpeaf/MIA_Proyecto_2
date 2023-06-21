@@ -68,17 +68,28 @@ class CommandStrategy(ABC):
             raise Exception("Invalid response, msgs key not found")
 
         for msg in response.get('msgs'):
-            
-            if msg.get('type') == CommandMsgType.SUCCESS:
-                self.success(msg.get('msg'))
-            elif msg.get('type') == CommandMsgType.WARNING:
-                self.warning(msg.get('msg'))
-            elif msg.get('type') == CommandMsgType.SUCCESS:
-                self.error(msg.get('msg'))
-            elif msg.get('type') == CommandMsgType.SUCCESS:
-                self.info(msg.get('msg'))
 
-            raise Exception(f"Invalid message type: {msg.get('type')}")
+            msg_type = msg.get('type')
+            
+            if msg_type == CommandMsgType.SUCCESS:
+                self.success(msg.get('msg'))
+            elif msg_type == CommandMsgType.WARNING:
+                self.warning(msg.get('msg'))
+            elif msg_type == CommandMsgType.ERROR:
+                self.error(msg.get('msg'))
+            elif msg_type == CommandMsgType.INFO:
+                self.info(msg.get('msg'))
+            else:
+                raise Exception(f"Invalid message type: {msg_type}")
+            
+
+    def compute_overall_status(self):
+        for msg in self.response.output:
+            if msg['msg_type'] == CommandMsgType.ERROR.name:
+                self.response.overall_status = False
+                return
+            
+        self.response.overall_status = True
 
     @abstractmethod
     def execute(self) -> bool:

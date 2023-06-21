@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { readFiles } from "../../utils";
 import toast from 'react-hot-toast';
+import { AuthContext } from "../../context/AuthContext";
 
 export interface ConsoleOutputI {
     command: string;
@@ -42,6 +43,7 @@ export const useDashboard = () => {
     // This state will be used to store the console output from the backend, use an array of objects
 
     const [consoleOutput, setConsoleOutput] = useState<ConsoleOutputI[]>(initialConsoleOutput)
+    const { setIsAuthorized } = useContext(AuthContext)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -85,7 +87,8 @@ export const useDashboard = () => {
     }
 
     const handleLogout = () => {
-        console.log('Logout')
+        setIsAuthorized(false)
+        toast.success('Sesión cerrada correctamente')
     }
 
     const handleExecuteCommand = () => {

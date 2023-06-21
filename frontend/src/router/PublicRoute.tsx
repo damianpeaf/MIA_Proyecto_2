@@ -1,6 +1,7 @@
 
-import { FC, ReactNode } from "react"
+import { FC, ReactNode, useContext } from "react"
 import { Navigate } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext";
 
 
 interface PublicRouteProps {
@@ -8,9 +9,9 @@ interface PublicRouteProps {
 }
 
 export const PublicRoute: FC<PublicRouteProps> = ({ children }) => {
-    const status = 'authenticated';
+    const { isAuthorized } = useContext(AuthContext);
 
-    return status === 'authenticated'
+    return isAuthorized
         ? <Navigate to="/dashboard" />
         : (
             <>

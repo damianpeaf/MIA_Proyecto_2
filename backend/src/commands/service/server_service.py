@@ -22,39 +22,7 @@ class ServerService(OwnService):
             r_path = relative_path[1:]
 
         return path.join(LOCAL_ROOT_PATH, r_path)
-    
-    def _add_error(self, msg : str, resp : dict[str, any]) -> None:
-        resp['ok'] = False
-        resp['msgs'].append({
-            'type': CommandMsgType.ERROR,
-            'msg': msg
-        })
-
-    def _add_success(self, msg : str, resp : dict[str, any]) -> None:
-        resp['ok'] = True
-        resp['msgs'].append({
-            'type': CommandMsgType.SUCCESS,
-            'msg': msg
-        })
-
-    def _add_warning(self, msg : str, resp : dict[str, any]) -> None:
-        resp['msgs'].append({
-            'type': CommandMsgType.WARNING,
-            'msg': msg
-        })
-
-    def _add_info(self, msg : str, resp : dict[str, any]) -> None:
-        resp['msgs'].append({
-            'type': CommandMsgType.INFO,
-            'msg': msg
-        })
-
-    def _default_response(self) -> dict[str, any]:
-        return {
-            'ok': False,
-            'msgs': []
-        }
-
+ 
     def create_file(self, relative_path : str, name : str, body : str, rename :bool = False) -> dict[str, any]:
         resp = self._default_response()
 

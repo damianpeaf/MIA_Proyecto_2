@@ -2,12 +2,12 @@
 from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from functools import lru_cache
 
 from commands import CommandProxy
 from auth import validate_user
 
 app = FastAPI()
-
 
 # Cors, allow all origins
 
@@ -18,8 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-    
-
 
 class CommandRequest(BaseModel):
     command: str

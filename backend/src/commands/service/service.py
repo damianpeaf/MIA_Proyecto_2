@@ -7,29 +7,39 @@ class ThirdService(ABC):
     def __init__(self) -> None:
         super().__init__()
 
-    def success(self, msg : str):
-        return {
-            'type': CommandMsgType.SUCCESS,
-            'msg': msg
-        }
-    
-    def error(self, msg : str):
-        return {
+       
+    def _add_error(self, msg : str, resp : dict[str, any]) -> None:
+        resp['ok'] = False
+        resp['msgs'].append({
             'type': CommandMsgType.ERROR,
             'msg': msg
-        }
-    
-    def warning(self, msg : str):
-        return {
+        })
+
+    def _add_success(self, msg : str, resp : dict[str, any]) -> None:
+        resp['ok'] = True
+        resp['msgs'].append({
+            'type': CommandMsgType.SUCCESS,
+            'msg': msg
+        })
+
+    def _add_warning(self, msg : str, resp : dict[str, any]) -> None:
+        resp['msgs'].append({
             'type': CommandMsgType.WARNING,
             'msg': msg
-        }
-    
-    def info(self, msg : str):
-        return {
+        })
+
+    def _add_info(self, msg : str, resp : dict[str, any]) -> None:
+        resp['msgs'].append({
             'type': CommandMsgType.INFO,
             'msg': msg
+        })
+
+    def _default_response(self) -> dict[str, any]:
+        return {
+            'ok': False,
+            'msgs': []
         }
+
 
     @abstractmethod
     def copy_structure(self, structure : dict[str, any], rename : bool) -> bool:

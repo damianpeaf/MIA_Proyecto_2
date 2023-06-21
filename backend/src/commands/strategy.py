@@ -63,6 +63,9 @@ class CommandStrategy(ABC):
     def register_execution(self, response : dict[str, any]):
         
         try:
+            if response is None:
+                raise Exception("Invalid response, response is None")
+            
             response['msgs']
         except KeyError:
             raise Exception("Invalid response, msgs key not found")

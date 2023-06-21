@@ -6,6 +6,7 @@ export const DashboardPage = () => {
     const {
         consoleOutput,
         fileInputRef,
+        textAreaRef,
         handleFileChange,
         handleKeyDown,
         handleLogout,
@@ -39,12 +40,13 @@ export const DashboardPage = () => {
                     </div>
 
                     {/* Input console, aling text in the middle vertical*/}
-                    <textarea name="" className="border border-gray-300 rounded h-16 p-2 items-center align-middle" onKeyDown={handleKeyDown}></textarea>
+                    <textarea name="" ref={textAreaRef} className="border border-gray-300 rounded h-16 p-2 items-center align-middle" onKeyDown={handleKeyDown}></textarea>
                 </div>
             </section>
 
             <button
                 onClick={handleLogout}
+
                 className="fixed text-sm top-5 right-5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg"
                 id="logoutBtn">
                 Cerrar sesión

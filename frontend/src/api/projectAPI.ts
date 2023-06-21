@@ -1,18 +1,20 @@
-import { ConsoleOutputResponse } from "../hooks";
+// import { ConsoleOutputResponse } from "../hooks";
 
-const baseUrl = 'http://100.26.201.62/health';
+const baseUrl = 'http://127.0.0.1:8000/command';
 
 // Fetch data from API
 
-const fetchCommand = async (command: string[]) => {
+const fetchCommand = async (commands: string) => {
     const response = await fetch(baseUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(command)
+        body: JSON.stringify({
+            "command": commands
+        })
     })
-    const data: ConsoleOutputResponse[] = await response.json()
+    const data = await response.json()
     return data
 }
 

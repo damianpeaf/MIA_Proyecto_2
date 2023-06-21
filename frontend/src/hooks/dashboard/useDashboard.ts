@@ -6,38 +6,24 @@ import fetchCommand from "../../api/projectAPI";
 
 export interface ConsoleOutputI {
     command: string;
-    response?: ConsoleOutputResponse[];
+    response?: ConsoleOutputResponse;
 }
 
 export interface ConsoleOutputResponse {
-    text: string;
-    type: 'warning' | 'error' | 'success' | 'info';
-    'io_type'?: 'input' | 'output';
-    'date'?: '2021-10-10 10:10:10';
+    data: {
+        'file_content'?: string;
+    },
+    output:
+    {
+        date: string;
+        io_type: 'INPUT' | 'OUTPUT';
+        message: string;
+        msg_type: 'INFO' | 'ERROR' | 'WARNING' | 'SUCCESS';
+    }[]
 }
 
-const initialConsoleOutput: ConsoleOutputI[] = [
-    {
-        'command': 'create -name->prueba1.txt -path->/carpeta1/ -body->”Este es el contenido del archivo 1” -type->server',
-        'response': [
-            { 'text': 'This is a test info message', 'type': 'info', },
-            { 'text': 'This is a test info message', 'type': 'warning', },
-            { 'text': 'This is a test info message', 'type': 'error', },
-            { 'text': 'This is a test info message', 'type': 'success', }]
-    },
-    {
-        'command': 'delete -path->/carpeta1/ -name->prueba1.txt -type->server',
-        'response': [{ 'text': 'This is a test info message', 'type': 'warning', }]
-    },
-    {
-        'command': 'Copy -from->/carpeta1/prueba1.txt -to->/”carpeta 2”/ -type_to->sever -type_from->bucket',
-        'response': [{ 'text': 'This is a test info message', 'type': 'error', }]
-    },
-    {
-        'command': 'Backup -type_to->server -type_from->bucket -name->”copia_1 G7”',
-        'response': [{ 'text': 'This is a test info message', 'type': 'success', }]
-    }
-]
+
+const initialConsoleOutput: ConsoleOutputI[] = []
 
 export const useDashboard = () => {
 
@@ -48,6 +34,8 @@ export const useDashboard = () => {
 
     const { setIsAuthorized } = useContext(AuthContext)
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
 
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,17 +67,16 @@ export const useDashboard = () => {
                 return;
             }
 
-            const response = await fetchCommand([command])
-            console.log(response)
-
-            // Concat new line if there is already text
+            const response = await fetchCommand(command)
             setConsoleOutput(prev => prev.concat({
                 'command': command,
-                'response': [{ 'text': 'This is a test info message', 'type': 'info', }]
+                'response': response
             }))
 
             // Clear input
-            e.currentTarget.value = ''
+            if (textAreaRef.current) {
+                textAreaRef.current.value = ''
+            }
 
         }
     }
@@ -101,8 +88,15 @@ export const useDashboard = () => {
 
     const handleExecuteCommand = async () => {
 
-        const response = await fetchCommand(contentFromFile)
-        console.log(response)
+        // Fetch each command from API
+
+        contentFromFile.forEach(async (command) => {
+            const response: ConsoleOutputResponse = await fetchCommand(command)
+            setConsoleOutput(prev => prev.concat({
+                'command': command,
+                'response': response
+            }))
+        })
 
         if (fileInputRef.current) {
             fileInputRef.current.value = ''
@@ -112,6 +106,7 @@ export const useDashboard = () => {
     return {
         consoleOutput,
         fileInputRef,
+        textAreaRef,
         handleExecuteCommand,
         handleFileChange,
         handleKeyDown,

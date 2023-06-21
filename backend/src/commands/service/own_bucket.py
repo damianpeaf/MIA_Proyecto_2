@@ -62,9 +62,10 @@ class OwnBucketService(OwnService):
         full_path = path.join(target_path, name)
 
         # validate if file exists in the bucket
-        try:
-            self._s3_bucket.head_object(Key=full_path)
+        
+        obj = list(self._s3_bucket.objects.filter(Prefix=full_path))
 
+        if len(obj) > 0:
             if rename:
                 new_name = self._get_unique_name(relative_path, name)
                 full_path = path.join(target_path, new_name)
@@ -72,9 +73,6 @@ class OwnBucketService(OwnService):
                 self._add_error(f'El archivo {name} ya existe', resp)
                 return resp
             
-        except:
-            pass
-
         # create file
         self._s3_bucket.put_object(
             Key = full_path,

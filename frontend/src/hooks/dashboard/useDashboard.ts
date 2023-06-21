@@ -1,11 +1,15 @@
-import { createRef, useState } from "react"
+import { useContext, useRef, useState } from "react"
+import { readFiles } from "../../utils";
+import { AuthContext } from "../../context";
+import toast from 'react-hot-toast';
+import fetchCommand from "../../api/projectAPI";
 
 export interface ConsoleOutputI {
     command: string;
     response?: ConsoleOutputResponse[];
 }
 
-interface ConsoleOutputResponse {
+export interface ConsoleOutputResponse {
     text: string;
     type: 'warning' | 'error' | 'success' | 'info';
     'io_type'?: 'input' | 'output';
@@ -35,20 +39,34 @@ const initialConsoleOutput: ConsoleOutputI[] = [
     }
 ]
 
-export const useConsole = () => {
+export const useDashboard = () => {
 
     // This state will be used to store the console output from the backend, use an array of objects
-    // 
+
     const [consoleOutput, setConsoleOutput] = useState<ConsoleOutputI[]>(initialConsoleOutput)
-    const consoleRef = createRef<HTMLDivElement>();
+    const [contentFromFile, setContentFromFile] = useState<string[]>([])
+
+    const { setIsAuthorized } = useContext(AuthContext)
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-        console.log(files);
+        readFiles(files).then((data) => {
+            // Store data in state
+            setContentFromFile(data[0].split('\n'))
+            toast.success('Archivo cargado correctamente')
+        }
+
+        ).catch((error) => {
+            toast.error('Error al cargar el archivo', error)
+        }
+        );
+
     }
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             const command = e.currentTarget.value;
@@ -61,12 +79,14 @@ export const useConsole = () => {
                 return;
             }
 
+            const response = await fetchCommand([command])
+            console.log(response)
+
             // Concat new line if there is already text
             setConsoleOutput(prev => prev.concat({
                 'command': command,
                 'response': [{ 'text': 'This is a test info message', 'type': 'info', }]
             }))
-
 
             // Clear input
             e.currentTarget.value = ''
@@ -74,10 +94,27 @@ export const useConsole = () => {
         }
     }
 
+    const handleLogout = () => {
+        setIsAuthorized(false)
+        toast.success('Sesión cerrada correctamente')
+    }
+
+    const handleExecuteCommand = async () => {
+
+        const response = await fetchCommand(contentFromFile)
+        console.log(response)
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    }
+
     return {
         consoleOutput,
-        consoleRef,
+        fileInputRef,
+        handleExecuteCommand,
         handleFileChange,
-        handleKeyDown
+        handleKeyDown,
+        handleLogout
     }
 }

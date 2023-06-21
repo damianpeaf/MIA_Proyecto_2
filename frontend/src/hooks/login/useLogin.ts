@@ -1,5 +1,6 @@
-import { useRef, useState } from "react"
+import { useContext, useRef, useState } from "react"
 import toast from "react-hot-toast"
+import { AuthContext } from "../../context/AuthContext"
 
 const initialUser = {
     username: "",
@@ -8,6 +9,7 @@ const initialUser = {
 
 export const useLogin = () => {
     const [user, setUser] = useState(initialUser)
+    const { setIsAuthorized } = useContext(AuthContext)
 
     // Reference to form
     const form = useRef<HTMLFormElement>(null)
@@ -15,17 +17,19 @@ export const useLogin = () => {
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        // TODO: Send user to backend
-        console.log(
-            `Carnet: ${user.username}\nPassword: ${user.password}`
-        )
+        // const { username, password } = user
+        // TODO: connect to backend
+
+        // Set isAuthorized to true
+        setIsAuthorized(true)
 
         // Reset form
         setUser(initialUser)
         form.current?.reset()
 
         // Show toast
-        toast.success("Login successful")
+        toast.success("Inicio de sesión exitoso")
+
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

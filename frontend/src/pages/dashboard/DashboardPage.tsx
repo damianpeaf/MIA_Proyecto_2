@@ -5,6 +5,7 @@ export const DashboardPage = () => {
 
     const {
         consoleOutput,
+        fileInputRef,
         handleFileChange,
         handleKeyDown,
         handleLogout,
@@ -18,7 +19,7 @@ export const DashboardPage = () => {
                 <div className="flex flex-row gap-4 items-center justify-center px-6 py-8 mx-auto lg:py-0 h-1/4">
                     <div className="flex flex-col md:flex-row w-full">
                         <label className="block mb-2 text-sm font-medium text-gray-900" htmlFor="multiple_files">Cargar archivo</label>
-                        <input className="block w-full file:h-full file:bg-primary-600 file:cursor-pointer file:text-white file:border-0 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50  focus:outline-none" type="file" onChange={handleFileChange} />
+                        <input ref={fileInputRef} className="block w-full file:h-full file:bg-primary-600 file:cursor-pointer file:text-white file:border-0 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50  focus:outline-none" type="file" onChange={handleFileChange} />
                     </div>
                     <button type="submit"
                         id="run-btn"

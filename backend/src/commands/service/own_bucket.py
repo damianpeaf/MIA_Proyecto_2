@@ -178,7 +178,6 @@ class OwnBucketService(OwnService):
         # validate if file exists in the bucket
 
         obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
-        
 
         if len(obj) == 0:
             self._add_error(f'El recurso {relative_path} no existe', resp)
@@ -194,33 +193,11 @@ class OwnBucketService(OwnService):
         # rename resource
         try:
             if is_file:
-                self._s3_client.copy_object(
-                    Bucket = AWS_BUCKET_NAME,
-                    CopySource = {
-                        'Bucket': AWS_BUCKET_NAME,
-                        'Key': target_path
-                    },
-                    Key = new_path
-                )
-                self._s3_client.delete_object(
-                    Bucket = AWS_BUCKET_NAME,
-                    Key = target_path
-                )
+                self._rename_resource(new_path, target_path)
             else:
                 for obj in self._s3_bucket.objects.filter(Prefix=target_path):
                     new_key = obj.key.replace(target_path, new_path)
-                    self._s3_client.copy_object(
-                        Bucket = AWS_BUCKET_NAME,
-                        CopySource = {
-                            'Bucket': AWS_BUCKET_NAME,
-                            'Key': obj.key
-                        },
-                        Key = new_key
-                    )
-                    self._s3_client.delete_object(
-                        Bucket = AWS_BUCKET_NAME,
-                        Key = obj.key
-                    )
+                    self._rename_resource(new_key, obj.key)
 
             self._add_success(f'Se renombró el recurso {relative_path} a {new_name}', resp)
         except Exception as e:
@@ -230,27 +207,18 @@ class OwnBucketService(OwnService):
         return resp
     
     def _rename_resource(self, new_key: str, old_key: str) -> dict[str, any]:
-        resp = self._default_response()
-
-        try:
-            self._s3_client.copy_object(
-                Bucket = AWS_BUCKET_NAME,
-                CopySource = {
-                    'Bucket': AWS_BUCKET_NAME,
-                    'Key': old_key
-                },
-                Key = new_key
-            )
-            self._s3_client.delete_object(
-                Bucket = AWS_BUCKET_NAME,
-                Key = old_key
-            )
-            self._add_success(f'Se renombró el recurso {old_key} a {new_key}', resp)
-        except Exception as e:
-            error_message = e.response['Error']['Message']
-            self._add_error(f'Error al renombrar el recurso: - {error_message}', resp)
-        
-        return resp
+        self._s3_client.copy_object(
+                    Bucket = AWS_BUCKET_NAME,
+                    CopySource = {
+                        'Bucket': AWS_BUCKET_NAME,
+                        'Key': old_key
+                    },
+                    Key = new_key
+                )
+        self._s3_client.delete_object(
+            Bucket = AWS_BUCKET_NAME,
+            Key = old_key
+        )
         
 
     def _get_unique_name(self, relative_path: str, name: str) -> str:

@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 from os import getenv, path
 import boto3 
+import botocore
 
 from .service import OwnService
 
@@ -98,7 +99,31 @@ class OwnBucketService(OwnService):
     def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
         resp = self._default_response()
 
+        target_path = self._get_path(relative_path)
+
+        # validate if file exists in the bucket
+
+        obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
+
+        if len(obj) == 0:
+            self._add_error(f'El archivo {relative_path} no existe', resp)
+            return resp
+        
+        # modify file
+        
+        try:
+            self._s3_bucket.put_object(
+                Key = target_path,
+                Body = body
+            )
+            self._add_success(f'Se modificó el archivo {relative_path}', resp)
+        except botocore.exceptions.ClientError as e:
+            error_code = e.response['Error']['Code']
+            error_message = e.response['Error']['Message']
+            self._add_error(f'Error al modificar el archivo: {error_code} - {error_message}', resp)
+            
         return resp
+        
 
     def rename_resource(self, relative_path : str, new_name : str) -> dict[str, any]:
         raise NotImplementedError(f'función rename_resource no implementada')

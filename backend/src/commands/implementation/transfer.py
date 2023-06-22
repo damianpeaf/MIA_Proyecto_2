@@ -1,4 +1,4 @@
-from .common_validators import is_path, is_enviroment, get_enviroment
+from .common_validators import is_path, is_environment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 
@@ -16,12 +16,12 @@ transfer_validations = [
     {
         "param_name": "type_to",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "type_from",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     }
 ]
 

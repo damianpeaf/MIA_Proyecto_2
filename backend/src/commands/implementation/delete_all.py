@@ -1,4 +1,4 @@
-from .common_validators import is_enviroment, get_enviroment
+from .common_validators import is_environment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 
@@ -7,7 +7,7 @@ delete_all_validations = [
     {
         "param_name": "type",
         "obligatory": True,
-        "validator": lambda x: is_enviroment
+        "validator": lambda x: is_environment
     }
 ]
 

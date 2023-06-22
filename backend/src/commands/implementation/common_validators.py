@@ -5,7 +5,7 @@ from ..config import CommandEnvironment
 
 envs_names = [env.name.lower() for env in CommandEnvironment.__members__.values()]
 
-def is_enviroment(value: str):
+def is_environment(value: str):
 
     if value is None:
         return False

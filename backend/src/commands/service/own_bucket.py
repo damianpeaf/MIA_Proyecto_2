@@ -96,7 +96,9 @@ class OwnBucketService(OwnService):
         raise NotImplementedError(f'función delete_directory_content no implementada')
 
     def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
-        raise NotImplementedError(f'función modify_file no implementada')
+        resp = self._default_response()
+
+        return resp
 
     def rename_resource(self, relative_path : str, new_name : str) -> dict[str, any]:
         raise NotImplementedError(f'función rename_resource no implementada')

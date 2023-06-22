@@ -1,4 +1,4 @@
-from .common_validators import is_path, is_enviroment, get_enviroment
+from .common_validators import is_path, is_environment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 
@@ -21,7 +21,7 @@ create_validations = [
     {
         "param_name": "type",
         "obligatory": True,
-        "validator": lambda x: is_enviroment
+        "validator": lambda x: is_environment(x)
     }
 ]
 

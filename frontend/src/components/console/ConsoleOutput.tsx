@@ -1,12 +1,12 @@
 import { FC } from "react"
-import { ConsoleOutputI } from "../../hooks"
+import { ConsoleOutputI } from "../../api/api.types"
 
 const styles:
     {
         [key: string]: string
     }
     = {
-    "INFO": "text-gray-500 border-l-2 border-gray-700",
+    "INFO": "text-gray-500 bg-gray-200 border-l-2 border-gray-700",
     "ERROR": "text-red-500 bg-red-100 border-l-2 border-red-700",
     "WARNING": "text-orange-500 bg-orange-100 border-l-2 border-orange-700",
     "SUCCESS": "text-green-500 bg-green-100 border-l-2 border-green-700",

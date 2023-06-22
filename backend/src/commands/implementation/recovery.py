@@ -1,4 +1,4 @@
-from .common_validators import is_enviroment, get_enviroment, is_ip, is_port
+from .common_validators import is_environment, get_enviroment, is_ip, is_port
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 from ..config import FullCommandEnvironment
@@ -7,12 +7,12 @@ recovery_validations = [
     {
         "param_name": "type_to",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "type_from",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "ip",

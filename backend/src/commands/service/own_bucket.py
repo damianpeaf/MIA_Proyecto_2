@@ -82,7 +82,7 @@ class OwnBucketService(OwnService):
     def create_directory(self, relative_path : str, name : str, rename : bool = False) -> dict[str, any]:
         raise NotImplementedError(f'función create_directory no implementada')
 
-    def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
+    def delete_resource(self, relative_path : str, name : str) -> dict[str, any]:
         resp = self._default_response()
         resource_path = self._get_relative_path(relative_path, name)
         target_path = self._get_path(relative_path, name)

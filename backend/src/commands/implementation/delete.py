@@ -34,5 +34,5 @@ class DeleteCommand(CommandStrategy):
 
         service = self.get_service_adapter(enviroment)
 
-        resp = service.delete_file(path, name)
+        resp = service.delete_resource(path, name)
         self.register_execution(resp)

@@ -1,4 +1,4 @@
-from os import path, getcwd, mkdir, makedirs, remove
+from os import path, getcwd, mkdir, makedirs, remove, walk
 from shutil import rmtree
 
 from .service import OwnService
@@ -44,7 +44,7 @@ class ServerService(OwnService):
     def create_directory(self, relative_path : str, name : str, rename : bool = False) -> dict[str, any]:
         raise NotImplementedError(f'función create_directory no implementada')
 
-    def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
+    def delete_resource(self, relative_path : str, name : str) -> dict[str, any]:
         resp = self._default_response()
         resource_path = self._get_relative_path(relative_path, name)
         target_path = self._get_abs_path(relative_path, name)
@@ -66,10 +66,22 @@ class ServerService(OwnService):
             return resp
 
     def delete_all(self) -> dict[str, any]:
-        raise NotImplementedError(f'función delete_all no implementada')
+        resp = self._default_response()
+        self.delete_directory_content('')
 
-    def delete_directory_content(self, relative_path : str, name : str) -> dict[str, any]:
-        raise NotImplementedError(f'función delete_directory_content no implementada')
+        self._add_success('Se eliminó todo el contenido', resp)
+        return resp
+
+    def delete_directory_content(self, relative_path : str) -> dict[str, any]:
+        
+        abs_path = self._get_abs_path(relative_path)
+
+        # delete content
+        for root, dirs, files in walk(abs_path):
+            for file in files:
+                remove(path.join(root, file))
+            for dir in dirs:
+                rmtree(path.join(root, dir))
 
     def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
         resp = self._default_response()

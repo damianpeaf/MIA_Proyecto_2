@@ -16,7 +16,7 @@ tokens: tuple[str, ...] = (
 
 # Regular expression rules for simple tokens
 
-t_INITIAL_COMMAND = r'[a-zA-Z]+'
+t_INITIAL_COMMAND = r'[a-zA-Z_]+'
 t_PARAM = r'-[a-zA-Z_]+'
 
 # Get value for params

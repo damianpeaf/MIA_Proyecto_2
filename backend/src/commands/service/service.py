@@ -86,7 +86,7 @@ class OwnService(ThirdService):
         pass
 
     @abstractmethod
-    def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
+    def delete_resource(self, relative_path : str, name : str) -> dict[str, any]:
         pass
 
     @abstractmethod

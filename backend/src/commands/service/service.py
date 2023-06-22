@@ -47,7 +47,7 @@ class ThirdService(ABC):
         pass
 
     @abstractmethod
-    def get_strucutre(self, from_relative_path :str, to_relative_path : str) -> dict[str, any]:
+    def get_structure(self, from_relative_path :str, to_relative_path : str) -> dict[str, any]:
         pass
 
     @abstractmethod

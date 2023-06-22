@@ -1,5 +1,6 @@
-from os import path, getcwd, mkdir, makedirs, remove, walk
+from os import path, getcwd, mkdir, makedirs, remove, walk, listdir
 from shutil import rmtree
+from json import dumps
 
 from .service import OwnService
 
@@ -108,8 +109,57 @@ class ServerService(OwnService):
     def copy_structure(self, structure : dict[str, any], rename : bool) -> bool:
         raise NotImplementedError(f'función copy_structure no implementada')
 
-    def get_strucutre(self, from_relative_path :str, to_relative_path : str) -> dict[str, any]:
-        raise NotImplementedError(f'función get_strucutre no implementada')
+    def get_structure(self, from_relative_path :str, to_relative_path : str) -> dict[str, any]:
+        resp = self._default_response()
+        resp['structure'] = []
+        resp['target'] = to_relative_path
+        
+        source_path = self._get_abs_path(from_relative_path)
+
+        if not path.exists(source_path):
+            self._add_error(f'El directorio {from_relative_path} no existe', resp)
+            return resp
+        
+        if path.isfile(source_path):
+            self._file_data(path.dirname(source_path), path.basename(source_path), path.dirname(from_relative_path), resp)
+            return resp
+        
+        for root, dirs, files in walk(source_path):
+
+            if root != source_path:
+                continue
+
+            for _dir in dirs:
+
+                _dir_path = self._get_relative_path(from_relative_path, _dir)
+                print('Explorando directorio', _dir_path)
+                _dir_content = self.get_structure(_dir_path, '').get('structure')
+
+                resp['structure'].append({
+                    'type': 'directory',
+                    'name': _dir,
+                    # 'path': _dir_path.replace('\\', '/'),
+                    'content': _dir_content
+                })
+
+            for file in files:
+                self._file_data(root, file, from_relative_path, resp)
+
+        # self._add_success(f'Se obtuvo la estructura del directorio {from_relative_path}', resp)
+        return resp
+    
+    def _file_data(self, root : str, file : str, from_relative_path : str, resp : dict[str, any]):
+        file_path = self._get_relative_path(from_relative_path, file)
+
+        with open(path.join(root, file), 'r') as f:
+            file_content = f.read()
+
+        resp['structure'].append({
+            'type': 'file',
+            'name': file,
+            # 'path': file_path.replace('\\', '/'),
+            'content': file_content
+        })
 
     def get_file(self, from_relative_path :str, name : str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

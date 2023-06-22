@@ -1,3 +1,5 @@
+from json import dumps
+
 from .common_validators import is_path, is_environment, get_enviroment
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
@@ -32,7 +34,6 @@ class CopyCommand(CommandStrategy):
         super().__init__("copy", args,  copy_validations, response)
 
     def execute(self):
-       
         
         from_path = self.args.get('from')
         to_path = self.args.get('to')
@@ -42,12 +43,15 @@ class CopyCommand(CommandStrategy):
         from_service = self.get_service_adapter(type_from)
         to_service = self.get_service_adapter(type_to)
 
-        resp = from_service.get_strucutre(from_path, to_path)
+        resp = from_service.get_structure(from_path, to_path)
         self.register_execution(resp)
 
         if not resp.get('structure'):
             return
         
+        # print formated structure
+        print(dumps(resp.get('structure'), indent=4))
+
         resp = to_service.copy_structure(resp.get('structure'), False)
         self.register_execution(resp)
 

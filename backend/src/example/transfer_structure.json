@@ -1,0 +1,34 @@
+[
+    {
+        "type": "directory",
+        "name": "otra",
+        "content": [
+            {
+                "type": "directory",
+                "name": "lol",
+                "content": [
+                    {
+                        "type": "file",
+                        "name": "no.txt",
+                        "content": ""
+                    }
+                ]
+            },
+            {
+                "type": "file",
+                "name": "si.txt",
+                "content": ""
+            }
+        ]
+    },
+    {
+        "type": "file",
+        "name": "prueba1.txt",
+        "content": "Este es el contenido del archivo 1"
+    },
+    {
+        "type": "file",
+        "name": "prueba2.txt",
+        "content": ""
+    }
+]

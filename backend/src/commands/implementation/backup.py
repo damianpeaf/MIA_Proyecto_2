@@ -63,7 +63,7 @@ class BackupCommand(CommandStrategy):
 
 
         # get structure that will be backuped
-        resp = to_service.get_strucutre('/', f"/{name}")
+        resp = to_service.get_structure('/', f"/{name}")
 
         self.register_execution(resp)
 

@@ -42,7 +42,7 @@ class TransferCommand(CommandStrategy):
         from_service = self.get_service_adapter(type_from)
         to_service = self.get_service_adapter(type_to)
 
-        resp = from_service.get_strucutre(from_path, to_path)
+        resp = from_service.get_structure(from_path, to_path)
         self.register_execution(resp)
 
         if not resp.get('structure'):

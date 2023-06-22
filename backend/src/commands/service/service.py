@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from os import path
 
 from ..response import CommandMsgType
 
@@ -55,6 +56,18 @@ class ThirdService(ABC):
 
 
 class OwnService(ThirdService):
+
+
+    def _get_relative_path(self, relative_path : str, aditional_resource : str = '') -> str:
+        r_path = relative_path
+        if len(relative_path.strip()) > 0 and relative_path[0] == '/':
+            r_path = relative_path[1:]
+
+        a_resource = aditional_resource
+        if len(aditional_resource.strip()) > 0 and aditional_resource[0] == '/':
+            a_resource = aditional_resource[1:]
+
+        return path.join(r_path, a_resource)
 
     @abstractmethod
     def _create_root(self, name : str) -> dict[str, any]:

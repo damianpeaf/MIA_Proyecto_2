@@ -1,8 +1,7 @@
-from os import path, getcwd, mkdir, makedirs
+from os import path, getcwd, mkdir, makedirs, remove
+from shutil import rmtree
 
 from .service import OwnService
-from ..response import CommandMsgType
-
 
 LOCAL_ROOT_PATH = path.abspath(path.join(getcwd(), 'archivos'))
 
@@ -16,17 +15,12 @@ class ServerService(OwnService):
         if not path.exists(LOCAL_ROOT_PATH):
             mkdir(LOCAL_ROOT_PATH)
     
-    def _get_path(self, relative_path : str) -> str:
-        r_path = relative_path
-        if relative_path[0] == '/':
-            r_path = relative_path[1:]
-
-        return path.join(LOCAL_ROOT_PATH, r_path)
+    def _get_abs_path(self, relative_path : str, aditional_resource : str = '') -> str:
+        return path.join(LOCAL_ROOT_PATH, self._get_relative_path(relative_path, aditional_resource))
  
     def create_file(self, relative_path : str, name : str, body : str, rename :bool = False) -> dict[str, any]:
         resp = self._default_response()
-
-        target_path = self._get_path(relative_path)
+        target_path = self._get_abs_path(relative_path)
 
         makedirs(target_path, exist_ok=True) # create directory if not exists
 
@@ -51,7 +45,25 @@ class ServerService(OwnService):
         raise NotImplementedError(f'función create_directory no implementada')
 
     def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
-        raise NotImplementedError(f'función delete_file no implementada')
+        resp = self._default_response()
+        resource_path = self._get_relative_path(relative_path, name)
+        target_path = self._get_abs_path(relative_path, name)
+
+        if not path.exists(target_path):
+            self._add_error(f"El recurso '{resource_path}' no existe", resp)
+            return resp
+        
+        # delete directory
+        if path.isdir(target_path):
+            rmtree(target_path)
+            self._add_success(f'Se eliminó el directorio {name}', resp)
+            return resp
+        
+        # delete file
+        if path.isfile(target_path):
+            remove(target_path)
+            self._add_success(f'Se eliminó el archivo {name}', resp)
+            return resp
 
     def delete_all(self) -> dict[str, any]:
         raise NotImplementedError(f'función delete_all no implementada')
@@ -62,7 +74,7 @@ class ServerService(OwnService):
     def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
         resp = self._default_response()
 
-        target_path = self._get_path(relative_path)
+        target_path = self._get_abs_path(relative_path)
 
         if not path.exists(target_path):
             self._add_error(f'El archivo {relative_path} no existe', resp)

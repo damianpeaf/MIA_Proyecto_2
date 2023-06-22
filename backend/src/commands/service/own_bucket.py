@@ -49,12 +49,8 @@ class OwnBucketService(OwnService):
 
         return root
     
-    def _get_path(self, relative_path : str) -> str:
-        r_path = relative_path
-        if relative_path[0] == '/':
-            r_path = relative_path[1:]
-
-        return path.join(ROOT_NAME, r_path)
+    def _get_path(self, relative_path : str, aditional_resource : str = '') -> str:
+        return path.join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource))
     
     def create_file(self, relative_path : str, name : str, body : str, rename :bool = False) -> dict[str, any]:
         resp = self._default_response()

@@ -7,7 +7,11 @@ from functools import lru_cache
 from commands import CommandProxy
 from auth import validate_user
 
-app = FastAPI()
+app = FastAPI(
+    title="Grupo 6 API",
+    description="API para el proyecto 2 del curso manejo e implementación de archivos",
+    version="1.0.0",
+)
 
 # Cors, allow all origins
 

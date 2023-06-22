@@ -102,7 +102,7 @@ class ServerService(OwnService):
     def rename_resource(self, relative_path: str, new_name: str) -> dict[str, any]:
         resp = self._default_response()
 
-        target_path = self._get_path(relative_path)
+        target_path = self._get_abs_path(relative_path)
 
         if not path.exists(target_path):
             self._add_error(f'La ruta {relative_path} no existe', resp)

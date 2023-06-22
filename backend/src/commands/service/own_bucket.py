@@ -170,7 +170,88 @@ class OwnBucketService(OwnService):
     def rename_resource(self, relative_path: str, new_name: str) -> dict[str, any]:
         resp = self._default_response()
 
+        target_path = self._get_path(relative_path)
+        new_path = target_path.replace(target_path.split('/')[-1], new_name)
+        is_file = len(target_path.split('/')[-1].split('.')) > 1
+        
+
+        # validate if file exists in the bucket
+
+        obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
+        
+
+        if len(obj) == 0:
+            self._add_error(f'El recurso {relative_path} no existe', resp)
+            return resp
+        
+        # Check if new name exists
+        obj = list(self._s3_bucket.objects.filter(Prefix=new_path))
+
+        if len(obj) > 0:
+            self._add_error(f'El recurso {new_name} ya existe', resp)
+            return resp
+        
+        # rename resource
+        try:
+            if is_file:
+                self._s3_client.copy_object(
+                    Bucket = AWS_BUCKET_NAME,
+                    CopySource = {
+                        'Bucket': AWS_BUCKET_NAME,
+                        'Key': target_path
+                    },
+                    Key = new_path
+                )
+                self._s3_client.delete_object(
+                    Bucket = AWS_BUCKET_NAME,
+                    Key = target_path
+                )
+            else:
+                for obj in self._s3_bucket.objects.filter(Prefix=target_path):
+                    new_key = obj.key.replace(target_path, new_path)
+                    self._s3_client.copy_object(
+                        Bucket = AWS_BUCKET_NAME,
+                        CopySource = {
+                            'Bucket': AWS_BUCKET_NAME,
+                            'Key': obj.key
+                        },
+                        Key = new_key
+                    )
+                    self._s3_client.delete_object(
+                        Bucket = AWS_BUCKET_NAME,
+                        Key = obj.key
+                    )
+
+            self._add_success(f'Se renombró el recurso {relative_path} a {new_name}', resp)
+        except Exception as e:
+            error_message = e.response['Error']['Message']
+            self._add_error(f'Error al renombrar el recurso: - {error_message}', resp)
+
         return resp
+    
+    def _rename_resource(self, new_key: str, old_key: str) -> dict[str, any]:
+        resp = self._default_response()
+
+        try:
+            self._s3_client.copy_object(
+                Bucket = AWS_BUCKET_NAME,
+                CopySource = {
+                    'Bucket': AWS_BUCKET_NAME,
+                    'Key': old_key
+                },
+                Key = new_key
+            )
+            self._s3_client.delete_object(
+                Bucket = AWS_BUCKET_NAME,
+                Key = old_key
+            )
+            self._add_success(f'Se renombró el recurso {old_key} a {new_key}', resp)
+        except Exception as e:
+            error_message = e.response['Error']['Message']
+            self._add_error(f'Error al renombrar el recurso: - {error_message}', resp)
+        
+        return resp
+        
 
     def _get_unique_name(self, relative_path: str, name: str) -> str:
         raise NotImplementedError(f'función _get_unique_name no implementada')

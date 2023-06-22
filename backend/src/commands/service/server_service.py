@@ -1,10 +1,11 @@
-from os import path, getcwd, mkdir, makedirs
+from os import path, getcwd, mkdir, makedirs, rename
 
 from .service import OwnService
 from ..response import CommandMsgType
 
 
 LOCAL_ROOT_PATH = path.abspath(path.join(getcwd(), 'archivos'))
+
 
 class ServerService(OwnService):
 
@@ -15,20 +16,20 @@ class ServerService(OwnService):
     def _create_root(self) -> dict[str, any]:
         if not path.exists(LOCAL_ROOT_PATH):
             mkdir(LOCAL_ROOT_PATH)
-    
-    def _get_path(self, relative_path : str) -> str:
+
+    def _get_path(self, relative_path: str) -> str:
         r_path = relative_path
         if relative_path[0] == '/':
             r_path = relative_path[1:]
 
         return path.join(LOCAL_ROOT_PATH, r_path)
- 
-    def create_file(self, relative_path : str, name : str, body : str, rename :bool = False) -> dict[str, any]:
+
+    def create_file(self, relative_path: str, name: str, body: str, rename: bool = False) -> dict[str, any]:
         resp = self._default_response()
 
         target_path = self._get_path(relative_path)
 
-        makedirs(target_path, exist_ok=True) # create directory if not exists
+        makedirs(target_path, exist_ok=True)  # create directory if not exists
 
         full_path = path.join(target_path, name)
 
@@ -39,27 +40,27 @@ class ServerService(OwnService):
             else:
                 self._add_error(f'El archivo {name} ya existe', resp)
                 return resp
-            
+
         with open(full_path, 'w') as f:
             f.write(body)
 
         self._add_success(f'Se creó el archivo {name}', resp)
         return resp
 
-
-    def create_directory(self, relative_path : str, name : str, rename : bool = False) -> dict[str, any]:
+    def create_directory(self, relative_path: str, name: str, rename: bool = False) -> dict[str, any]:
         raise NotImplementedError(f'función create_directory no implementada')
 
-    def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
+    def delete_file(self, relative_path: str, name: str) -> dict[str, any]:
         raise NotImplementedError(f'función delete_file no implementada')
 
     def delete_all(self) -> dict[str, any]:
         raise NotImplementedError(f'función delete_all no implementada')
 
-    def delete_directory_content(self, relative_path : str, name : str) -> dict[str, any]:
-        raise NotImplementedError(f'función delete_directory_content no implementada')
+    def delete_directory_content(self, relative_path: str, name: str) -> dict[str, any]:
+        raise NotImplementedError(
+            f'función delete_directory_content no implementada')
 
-    def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
+    def modify_file(self, relative_path: str, body: str) -> dict[str, any]:
         resp = self._default_response()
 
         target_path = self._get_path(relative_path)
@@ -67,7 +68,7 @@ class ServerService(OwnService):
         if not path.exists(target_path):
             self._add_error(f'El archivo {relative_path} no existe', resp)
             return resp
-        
+
         with open(target_path, 'w') as f:
             f.write(body)
 
@@ -75,18 +76,41 @@ class ServerService(OwnService):
 
         return resp
 
-    def rename_resource(self, relative_path : str, new_name : str) -> dict[str, any]:
-        raise NotImplementedError(f'función rename_resource no implementada')
+    def rename_resource(self, relative_path: str, new_name: str) -> dict[str, any]:
+        resp = self._default_response()
 
-    def _get_unique_name(self, relative_path : str, name : str) -> str:
+        target_path = self._get_path(relative_path)
+
+        if not path.exists(target_path):
+            self._add_error(f'La ruta {relative_path} no existe', resp)
+            return resp
+
+        base_path = path.dirname(target_path)
+
+        new_path = path.join(base_path, new_name)
+
+        if path.exists(new_path):
+            self._add_error(
+                f'Ya existe un recurso con el nombre {new_name}', resp
+            )
+            return resp
+
+        rename(target_path, new_path)
+
+        self._add_success(
+            f'Se renombró el recurso {relative_path} a {new_name}', resp
+        )
+
+        return resp
+
+    def _get_unique_name(self, relative_path: str, name: str) -> str:
         raise NotImplementedError(f'función _get_unique_name no implementada')
 
-    def copy_structure(self, structure : dict[str, any], rename : bool) -> bool:
+    def copy_structure(self, structure: dict[str, any], rename: bool) -> bool:
         raise NotImplementedError(f'función copy_structure no implementada')
 
-    def get_strucutre(self, from_relative_path :str, to_relative_path : str) -> dict[str, any]:
+    def get_strucutre(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_strucutre no implementada')
 
-    def get_file(self, from_relative_path :str, name : str) -> dict[str, any]:
+    def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')
-

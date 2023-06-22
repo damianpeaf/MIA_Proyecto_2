@@ -50,22 +50,21 @@ class OwnBucketService(OwnService):
         return root
     
     def _get_path(self, relative_path : str, aditional_resource : str = '') -> str:
-        return path.join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource))
+        return path.join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource)).replace('\\', '/') # just for windows
     
     def create_file(self, relative_path : str, name : str, body : str, rename :bool = False) -> dict[str, any]:
         resp = self._default_response()
 
         target_path = self._get_path(relative_path)
-        full_path = path.join(target_path, name)
+        full_path = path.join(target_path, name).replace('\\', '/') # just for windows
 
         # validate if file exists in the bucket
-        
         obj = list(self._s3_bucket.objects.filter(Prefix=full_path))
 
         if len(obj) > 0:
             if rename:
                 new_name = self._get_unique_name(relative_path, name)
-                full_path = path.join(target_path, new_name)
+                full_path = path.join(target_path, new_name).replace('\\', '/') # just for windows
             else:
                 self._add_error(f'El archivo {name} ya existe', resp)
                 return resp
@@ -84,13 +83,53 @@ class OwnBucketService(OwnService):
         raise NotImplementedError(f'función create_directory no implementada')
 
     def delete_file(self, relative_path : str, name : str) -> dict[str, any]:
-        raise NotImplementedError(f'función delete_file no implementada')
+        resp = self._default_response()
+        resource_path = self._get_relative_path(relative_path, name)
+        target_path = self._get_path(relative_path, name)
 
+        # validate if directory/file exists in the bucket
+        print({
+            'target_path': target_path,
+        })
+
+        obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
+
+        if len(obj) == 0:
+            self._add_error(f"El recurso '{resource_path}' no existe", resp)
+            return resp
+        
+        # Delete
+        resource_type = 'archivo'
+        if target_path[-1] == '/':
+            resource_type = 'carpeta'
+
+        try:
+            
+            if resource_type == 'archivo':
+                self._s3_client.delete_object(
+                    Bucket = AWS_BUCKET_NAME,
+                    Key = target_path
+                )
+            else:
+                for obj in self._s3_bucket.objects.filter(Prefix=target_path):
+                    self._s3_client.delete_object(
+                        Bucket = AWS_BUCKET_NAME,
+                        Key = obj.key
+                    )
+
+            self._add_success(f'Se eliminó el {resource_type} {resource_path}', resp)
+        except Exception as e:
+            error_message = e.response['Error']['Message']
+            self._add_error(f'Error al eliminar el {resource_type}: - {error_message}', resp)
+
+        return resp
+                
     def delete_all(self) -> dict[str, any]:
         raise NotImplementedError(f'función delete_all no implementada')
 
     def delete_directory_content(self, relative_path : str, name : str) -> dict[str, any]:
         raise NotImplementedError(f'función delete_directory_content no implementada')
+
 
     def modify_file(self, relative_path : str, body : str) -> dict[str, any]:
         resp = self._default_response()

@@ -67,7 +67,10 @@ class OwnService(ThirdService):
         if len(aditional_resource.strip()) > 0 and aditional_resource[0] == '/':
             a_resource = aditional_resource[1:]
 
-        return path.join(r_path, a_resource)
+        if len(a_resource.strip()) > 0:
+            r_path = path.join(r_path, a_resource)
+
+        return r_path
 
     @abstractmethod
     def _create_root(self, name : str) -> dict[str, any]:

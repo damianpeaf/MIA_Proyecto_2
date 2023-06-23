@@ -79,5 +79,5 @@ class BackupCommand(CommandStrategy):
         ]
 
         # transfer structure to backup
-        resp = from_service.copy_structure(resp.get('structure'), False)
+        resp = from_service.copy_structure(resp, False)
         self.register_execution(resp)

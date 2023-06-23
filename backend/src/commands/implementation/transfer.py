@@ -28,16 +28,15 @@ transfer_validations = [
 
 class TransferCommand(CommandStrategy):
 
-    def __init__(self, args: dict[str, str], response : CommandResponse):
+    def __init__(self, args: dict[str, str], response: CommandResponse):
         super().__init__("transfer", args,  transfer_validations, response)
 
     def execute(self):
-        
+
         from_path = self.args.get('from')
         to_path = self.args.get('to')
         type_to = get_enviroment(self.args.get('type_to'))
         type_from = get_enviroment(self.args.get('type_from'))
-
 
         from_service = self.get_service_adapter(type_from)
         to_service = self.get_service_adapter(type_to)
@@ -47,14 +46,13 @@ class TransferCommand(CommandStrategy):
 
         if not resp.get('structure'):
             return
-        
-        resp = to_service.transfer_structure(resp.get('structure'), False)
+
+        resp = to_service.copy_structure(resp, False)
         self.register_execution(resp)
+
+        if not resp['ok']:
+            return
 
         # delete structure from source
         resp = from_service.delete_directory_content(from_path)
         self.register_execution(resp)
-
-        
-
-

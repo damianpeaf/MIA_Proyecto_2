@@ -34,11 +34,11 @@ recovery_validations = [
 
 class RecoveryCommand(CommandStrategy):
 
-    def __init__(self, args: dict[str, str], response : CommandResponse):
+    def __init__(self, args: dict[str, str], response: CommandResponse):
         super().__init__("recovery", args,  recovery_validations, response)
 
     def execute(self):
-        
+
         type_to = get_enviroment(self.args.get('type_to'))
         type_from = get_enviroment(self.args.get('type_from'))
         ip = self.args.get('ip')
@@ -61,21 +61,13 @@ class RecoveryCommand(CommandStrategy):
 
         from_service = self.get_service_adapter(type_from, ip=ip, port=port)
 
-
         # get structure that will be recoveryed
         resp = to_service.get_structure(f'/{name}', '/')
-
         self.register_execution(resp)
 
         if not resp.get('structure'):
             return
-        
+
         # transfer structure to recovery
-        resp = from_service.copy_structure(resp.get('structure'), False)
+        resp = from_service.copy_structure(resp, False)
         self.register_execution(resp)
-
-
-
-        
-
-       

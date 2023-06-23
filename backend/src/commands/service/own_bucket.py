@@ -226,7 +226,7 @@ class OwnBucketService(OwnService):
     def _get_unique_name(self, relative_path: str, name: str) -> str:
         raise NotImplementedError(f'función _get_unique_name no implementada')
 
-    def copy_structure(self, structure: dict[str, any], rename: bool) -> bool:
+    def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
         raise NotImplementedError(f'función copy_structure no implementada')
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:

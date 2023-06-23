@@ -30,11 +30,11 @@ copy_validations = [
 
 class CopyCommand(CommandStrategy):
 
-    def __init__(self, args: dict[str, str], response : CommandResponse):
+    def __init__(self, args: dict[str, str], response: CommandResponse):
         super().__init__("copy", args,  copy_validations, response)
 
     def execute(self):
-        
+
         from_path = self.args.get('from')
         to_path = self.args.get('to')
         type_to = get_enviroment(self.args.get('type_to'))
@@ -48,10 +48,10 @@ class CopyCommand(CommandStrategy):
 
         if not resp.get('structure'):
             return
-        
+
         # print formated structure
         print(dumps(resp.get('structure'), indent=4))
 
-        resp = to_service.copy_structure(resp.get('structure'), False)
-        self.register_execution(resp)
+        resp = to_service.copy_structure(resp, False)
 
+        self.register_execution(resp)

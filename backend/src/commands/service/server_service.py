@@ -90,21 +90,33 @@ class ServerService(OwnService):
 
     def delete_all(self) -> dict[str, any]:
         resp = self._default_response()
-        self.delete_directory_content('')
+        self.delete_content('')
 
         self._add_success('Se eliminó todo el contenido', resp)
         return resp
 
-    def delete_directory_content(self, relative_path: str) -> dict[str, any]:
+    def delete_content(self, relative_path: str) -> dict[str, any]:
+        resp = self._default_response()
 
         abs_path = self._get_abs_path(relative_path)
 
-        # delete content
+        if not path.exists(abs_path):
+            self._add_error(f'El directorio {relative_path} no existe', resp)
+            return resp
+
+        # Delete file
+        if path.isfile(abs_path):
+            self.delete_resource(path.dirname(relative_path), path.basename(relative_path))
+            return resp
+
+        # delete content of directory
         for root, dirs, files in walk(abs_path):
             for file in files:
                 remove(path.join(root, file))
             for dir in dirs:
                 rmtree(path.join(root, dir))
+
+        return resp
 
     def modify_file(self, relative_path: str, body: str) -> dict[str, any]:
         resp = self._default_response()

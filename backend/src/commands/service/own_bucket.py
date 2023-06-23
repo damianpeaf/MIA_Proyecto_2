@@ -138,9 +138,8 @@ class OwnBucketService(OwnService):
         self._add_success(f'Se eliminaron todos los recursos', resp)
         return resp
 
-    def delete_directory_content(self, relative_path: str, name: str) -> dict[str, any]:
-        raise NotImplementedError(
-            f'función delete_directory_content no implementada')
+    def delete_content(self, relative_path: str, name: str) -> dict[str, any]:
+        return self.delete_resource(relative_path, name)
 
     def modify_file(self, relative_path: str, body: str) -> dict[str, any]:
         resp = self._default_response()
@@ -232,10 +231,8 @@ class OwnBucketService(OwnService):
         while self._resource_exists(self._join(target_path, new_name)):
 
             if self._is_file(new_name):
-                print('rename file')
                 new_name = f'{name.split(".")[0]}({i}).{name.split(".")[1]}'
             else:
-                print('rename dir')
                 new_name = f'{name}({i})'
 
             i += 1
@@ -310,10 +307,6 @@ class OwnBucketService(OwnService):
 
         # get structure
 
-        print('source_path: ', source_path)
-        print(self._is_file(source_path))
-        print(path.isdir(source_path))
-
         if self._is_file(source_path):
             resource = self._s3_client.get_object(
                 Bucket=AWS_BUCKET_NAME,
@@ -334,7 +327,6 @@ class OwnBucketService(OwnService):
             if obj.key.endswith('/'):
                 obj_name = obj.key.split('/')[-2]
                 dir_path = self._join(from_relative_path, obj_name)
-                print('explorando ', dir_path)
                 content = self.get_structure(dir_path, '')
                 resp['structure'].append({
                     'type': 'directory',

@@ -97,7 +97,7 @@ class OwnService(ThirdService):
         pass
 
     @abstractmethod
-    def delete_directory_content(self, relative_path: str, name: str) -> dict[str, any]:
+    def delete_content(self, relative_path: str, name: str) -> dict[str, any]:
         pass
 
     @abstractmethod

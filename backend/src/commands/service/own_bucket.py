@@ -5,6 +5,7 @@ import boto3
 import botocore
 
 from .service import OwnService
+from .s3_custom import s3list
 
 load_dotenv()
 
@@ -91,9 +92,6 @@ class OwnBucketService(OwnService):
         target_path = self._get_path(relative_path, name)
 
         # validate if directory/file exists in the bucket
-        print({
-            'target_path': target_path,
-        })
 
         obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
 
@@ -225,7 +223,59 @@ class OwnBucketService(OwnService):
         raise NotImplementedError(f'función copy_structure no implementada')
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
-        raise NotImplementedError(f'función get_structure no implementada')
+        resp = self._default_response()
+        resp['structure'] = []
+        resp['target'] = to_relative_path
+
+        source_path = self._get_path(from_relative_path)
+
+        # validate if directory/file exists in the bucket
+
+        objs = list(self._s3_bucket.objects.filter(Prefix=source_path))
+
+        if len(objs) == 0:
+            self._add_error(f'El recurso {from_relative_path} no existe', resp)
+            return resp
+
+        # get structure
+
+        if path.isfile(source_path):
+            resource = self._s3_client.get_object(
+                Bucket=AWS_BUCKET_NAME,
+                Key=source_path
+            )
+            resp['structure'].append({
+                'type': 'file',
+                'name': path.basename(source_path),
+                'body': resource['Body'].read().decode('utf-8')
+            })
+            return resp
+
+        for obj in s3list(self._s3_bucket, source_path, recursive=False):
+
+            if obj.key.endswith('/'):
+                obj_name = obj.key.split('/')[-2]
+                content = self.get_structure(self._join(from_relative_path, obj_name), '')
+                resp['structure'].append({
+                    'type': 'directory',
+                    'name': obj_name,
+                    'content': content['structure']
+                })
+
+            else:
+                obj_name = path.basename(obj.key)
+                file_obj = self._s3_client.get_object(
+                    Bucket=AWS_BUCKET_NAME,
+                    Key=obj.key
+                )
+
+                resp['structure'].append({
+                    'type': 'file',
+                    'name': obj_name,
+                    'body': file_obj['Body'].read().decode('utf-8')
+                })
+
+        return resp
 
     def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

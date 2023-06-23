@@ -186,11 +186,13 @@ class ServerService(OwnService):
                     resource['content'],
                     rename
                 )
-                print(status)
+                print(self._get_warning_and_errors(status))
+                resp['msgs'] += self._get_warning_and_errors(status)
                 
             else:
                 response = self.create_directory(target_path, resource['name'] ,rename)
                 directory_path = path.join(target_path, response['name'])
+                resp['msgs'] += self._get_warning_and_errors(response)
                 
                 if resource['content']:
                     self.copy_structure({
@@ -198,7 +200,10 @@ class ServerService(OwnService):
                         'target': directory_path
                     }, rename)
 
-        self._add_success('Se copió la estructura', resp)
+        if self._errors_in_response(resp) > 0:
+            self._add_warning('Se copió la estructura con errores', resp)
+        else:
+            self._add_success('Se copió la estructura', resp)
         return resp
 
 

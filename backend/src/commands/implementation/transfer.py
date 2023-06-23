@@ -54,5 +54,4 @@ class TransferCommand(CommandStrategy):
             return
 
         # delete structure from source
-        resp = from_service.delete_content(from_path)
-        self.register_execution(resp)
+        from_service.delete_content(from_path)

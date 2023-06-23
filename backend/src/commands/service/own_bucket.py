@@ -224,10 +224,74 @@ class OwnBucketService(OwnService):
         )
 
     def _get_unique_name(self, relative_path: str, name: str) -> str:
-        raise NotImplementedError(f'función _get_unique_name no implementada')
 
-    def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
-        raise NotImplementedError(f'función copy_structure no implementada')
+        target_path = self._get_path(relative_path)
+        new_name = name
+        i = 1
+
+        while self._resource_exists(self._join(target_path, new_name)):
+
+            if self._is_file(new_name):
+                print('rename file')
+                new_name = f'{name.split(".")[0]}({i}).{name.split(".")[1]}'
+            else:
+                print('rename dir')
+                new_name = f'{name}({i})'
+
+            i += 1
+
+        return new_name
+
+    def copy_structure(self, get_response: dict[str, any], rename: bool, exist_target=True) -> bool:
+        # ? Add a param for backup on root folder
+        resp = self._default_response()
+
+        # search for target path
+        relative_target = get_response['target']
+        target_path = self._get_path(relative_target)
+
+        # validate if directory/file exists in the bucket
+
+        if not self._resource_exists(target_path) and exist_target:
+            self._add_error(f'El recurso {relative_target} no existe en el destino', resp)
+            return resp
+
+        # copy structure
+        structure = get_response.get('structure', [])
+
+        for root_item in structure:
+
+            item_name = root_item['name']
+            creation_path = self._join(target_path, item_name)
+
+            if self._resource_exists(creation_path):
+
+                item_type = 'El archivo' if root_item['type'] == 'file' else 'La carpeta'
+
+                if rename:
+                    new_name = self._get_unique_name(relative_target, item_name)
+                    self._add_warning(f"{item_type} '{item_name}' ya existe en el destino, se renombró a {new_name}", resp)
+                    item_name = new_name
+                else:
+                    self._add_error(f"{item_type} '{item_name}' ya existe en el destino", resp)
+                    continue
+
+            if root_item['type'] == 'file':
+                self.create_file(relative_target, item_name, root_item['body'])
+            elif root_item['type'] == 'directory':
+                self.copy_structure({
+                    'target': self._join(relative_target, item_name),
+                    'structure': root_item['content']
+                },
+                    rename=False,
+                    exist_target=False)
+
+        if self._errors_in_response(resp) > 0:
+            self._add_warning('No se completó toda la transferencia correctamente', resp)
+        else:
+            self._add_success('Se completó la transferencia correctamente', resp)
+
+        return resp
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         resp = self._default_response()
@@ -241,7 +305,7 @@ class OwnBucketService(OwnService):
         objs = list(self._s3_bucket.objects.filter(Prefix=source_path))
 
         if not self._resource_exists(source_path):
-            self._add_error(f'El recurso {from_relative_path} no existe', resp)
+            self._add_error(f"El recurso '{from_relative_path}' no existe en el origen", resp)
             return resp
 
         # get structure

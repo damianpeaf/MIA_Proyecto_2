@@ -41,6 +41,12 @@ class ThirdService(ABC):
             'msgs': []
         }
 
+    def _errors_in_response(self, resp: dict[str, any]) -> int:
+        return len([msg for msg in resp['msgs'] if msg['type'] == CommandMsgType.ERROR])
+
+    def _success_in_response(self, resp: dict[str, any]) -> int:
+        return len([msg for msg in resp['msgs'] if msg['type'] == CommandMsgType.SUCCESS])
+
     @abstractmethod
     def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
         pass

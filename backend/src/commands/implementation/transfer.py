@@ -43,11 +43,11 @@ class TransferCommand(CommandStrategy):
 
         resp = from_service.get_structure(from_path, to_path)
         self.register_execution(resp)
-
+        
         if not resp.get('structure'):
             return
 
-        resp = to_service.copy_structure(resp, False)
+        resp = to_service.copy_structure(resp, True)
         self.register_execution(resp)
 
         if not resp['ok']:

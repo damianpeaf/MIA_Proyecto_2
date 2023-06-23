@@ -32,6 +32,7 @@ class ServerService(OwnService):
             if rename:
                 new_name = self._get_unique_name(relative_path, name)
                 full_path = path.join(target_path, new_name)
+                self._add_warning(f'El archivo {name} ya existe, se renombró a {new_name}', resp)
             else:
                 self._add_error(f'El archivo {name} ya existe', resp)
                 return resp
@@ -43,7 +44,28 @@ class ServerService(OwnService):
         return resp
 
     def create_directory(self, relative_path: str, name: str, rename: bool = False) -> dict[str, any]:
-        raise NotImplementedError(f'función create_directory no implementada')
+        resp = self._default_response()
+        resp['name'] = name
+        target_path = self._get_abs_path(relative_path)
+
+        makedirs(target_path, exist_ok=True) 
+
+        full_path = path.join(target_path, name)
+
+        if path.exists(full_path):
+            if rename:
+                new_name = self._get_unique_name(relative_path, name)
+                full_path = path.join(target_path, new_name)
+                self._add_warning(f'El directorio {name} ya existe, se renombró a {new_name}', resp)
+                resp['name'] = new_name
+            else:
+                self._add_error(f'El directorio {name} ya existe', resp)
+                return resp
+        
+        mkdir(full_path)
+
+        self._add_success(f'Se creó el directorio {name}', resp)
+        return resp
 
     def delete_resource(self, relative_path: str, name: str) -> dict[str, any]:
         resp = self._default_response()
@@ -128,10 +150,45 @@ class ServerService(OwnService):
         return resp
 
     def _get_unique_name(self, relative_path: str, name: str) -> str:
-        raise NotImplementedError(f'función _get_unique_name no implementada')
+
+        directory_path = self._get_abs_path(relative_path)
+
+        base_name, ext = path.splitext(name)
+        index = 1
+        new_name = name
+        while path.exists(path.join(directory_path, new_name)):
+            new_name = f"{base_name}({index}){ext}"
+            index += 1
+        return new_name
 
     def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
-        raise NotImplementedError(f'función copy_structure no implementada')
+        resp = self._default_response()
+
+        target_path =  get_response['target']
+
+        for resource in get_response['structure']:
+            if resource['type'] == 'file':
+                status = self.create_file(
+                    target_path,
+                    resource['name'],
+                    resource['content'],
+                    rename
+                )
+                print(status)
+                
+            else:
+                response = self.create_directory(target_path, resource['name'] ,rename)
+                directory_path = path.join(target_path, response['name'])
+                
+                if resource['content']:
+                    self.copy_structure({
+                        'structure': resource['content'],
+                        'target': directory_path
+                    }, rename)
+
+        self._add_success('Se copió la estructura', resp)
+        return resp
+
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         resp = self._default_response()

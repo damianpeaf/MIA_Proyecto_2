@@ -34,11 +34,11 @@ backup_validations = [
 
 class BackupCommand(CommandStrategy):
 
-    def __init__(self, args: dict[str, str], response : CommandResponse):
+    def __init__(self, args: dict[str, str], response: CommandResponse):
         super().__init__("backup", args,  backup_validations, response)
 
     def execute(self):
-        
+
         type_to = get_enviroment(self.args.get('type_to'))
         type_from = get_enviroment(self.args.get('type_from'))
         ip = self.args.get('ip')
@@ -61,21 +61,23 @@ class BackupCommand(CommandStrategy):
 
         from_service = self.get_service_adapter(type_from, ip=ip, port=port)
 
-
         # get structure that will be backuped
-        resp = to_service.get_structure('/', f"/{name}")
+        resp = to_service.get_structure('/', '/')
 
         self.register_execution(resp)
 
         if not resp.get('structure'):
             return
-        
+
+        # ?!?! add backup folder to structure <- idk if this is right
+        resp['structure'] = [
+            {
+                "type": "directory",
+                "name": name,
+                "content": resp.get('structure')
+            }
+        ]
+
         # transfer structure to backup
         resp = from_service.copy_structure(resp.get('structure'), False)
         self.register_execution(resp)
-
-
-
-        
-
-       

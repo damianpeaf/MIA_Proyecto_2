@@ -57,11 +57,18 @@ class OwnBucketService(OwnService):
     def _get_path(self, relative_path: str, aditional_resource: str = '') -> str:
         return self._join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource))
 
+    def _is_file(self, relative_path: str) -> bool:
+        return len(relative_path.split('/')[-1].split('.')) > 1
+
     def create_file(self, relative_path: str, name: str, body: str, rename: bool = False) -> dict[str, any]:
         resp = self._default_response()
 
         target_path = self._get_path(relative_path)
         full_path = self._join(target_path, name)
+
+        if not self._is_file(full_path):
+            self._add_error(f'El archivo {name} no tiene extensión', resp)
+            return resp
 
         # validate if file exists in the bucket
         obj = list(self._s3_bucket.objects.filter(Prefix=full_path))
@@ -233,13 +240,17 @@ class OwnBucketService(OwnService):
 
         objs = list(self._s3_bucket.objects.filter(Prefix=source_path))
 
-        if len(objs) == 0:
+        if not self._resource_exists(source_path):
             self._add_error(f'El recurso {from_relative_path} no existe', resp)
             return resp
 
         # get structure
 
-        if path.isfile(source_path):
+        print('source_path: ', source_path)
+        print(self._is_file(source_path))
+        print(path.isdir(source_path))
+
+        if self._is_file(source_path):
             resource = self._s3_client.get_object(
                 Bucket=AWS_BUCKET_NAME,
                 Key=source_path
@@ -253,9 +264,14 @@ class OwnBucketService(OwnService):
 
         for obj in s3list(self._s3_bucket, source_path, recursive=False):
 
+            if obj.key == ROOT_NAME:
+                continue
+
             if obj.key.endswith('/'):
                 obj_name = obj.key.split('/')[-2]
-                content = self.get_structure(self._join(from_relative_path, obj_name), '')
+                dir_path = self._join(from_relative_path, obj_name)
+                print('explorando ', dir_path)
+                content = self.get_structure(dir_path, '')
                 resp['structure'].append({
                     'type': 'directory',
                     'name': obj_name,
@@ -276,6 +292,17 @@ class OwnBucketService(OwnService):
                 })
 
         return resp
+
+    def _resource_exists(self, key) -> bool:
+
+        p_key = key
+
+        if not self._is_file(key) and key[-1] != '/':
+            p_key += '/'
+
+        objs = list(self._s3_bucket.objects.filter(Prefix=p_key))
+
+        return len(objs) > 0
 
     def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

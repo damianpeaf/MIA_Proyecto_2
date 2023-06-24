@@ -35,6 +35,8 @@ def recovery_controller(request: RecoveryRequest):
         to_relative_path='/',
     )
 
+    structure = convert_to_standard(resp.get('structure'))
+
     return {
-        'structure': convert_to_standard(resp.get('structure'))
+        'structure': structure if structure != {} else None
     }

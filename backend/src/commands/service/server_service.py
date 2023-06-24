@@ -179,7 +179,7 @@ class ServerService(OwnService):
 
         return resp
 
-    def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
+    def copy_structure(self, get_response: dict[str, any], rename: bool, exist_target=False) -> bool:
         resp = self._default_response()
 
         target_path = get_response['target']

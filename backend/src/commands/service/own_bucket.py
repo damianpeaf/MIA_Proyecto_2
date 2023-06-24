@@ -239,7 +239,7 @@ class OwnBucketService(OwnService):
 
         return new_name
 
-    def copy_structure(self, get_response: dict[str, any], rename: bool, exist_target=True) -> bool:
+    def copy_structure(self, get_response: dict[str, any], rename: bool, exist_target=False) -> bool:
         # ? Add a param for backup on root folder
         resp = self._default_response()
 
@@ -274,7 +274,7 @@ class OwnBucketService(OwnService):
                     continue
 
             if root_item['type'] == 'file':
-                self.create_file(relative_target, item_name, root_item['body'])
+                self.create_file(relative_target, item_name, root_item['content'])
             elif root_item['type'] == 'directory':
                 self.copy_structure({
                     'target': self._join(relative_target, item_name),
@@ -315,7 +315,7 @@ class OwnBucketService(OwnService):
             resp['structure'].append({
                 'type': 'file',
                 'name': path.basename(source_path),
-                'body': resource['Body'].read().decode('utf-8')
+                'content': resource['Body'].read().decode('utf-8')
             })
             return resp
 
@@ -344,7 +344,7 @@ class OwnBucketService(OwnService):
                 resp['structure'].append({
                     'type': 'file',
                     'name': obj_name,
-                    'body': file_obj['Body'].read().decode('utf-8')
+                    'content': file_obj['Body'].read().decode('utf-8')
                 })
 
         return resp

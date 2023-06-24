@@ -49,9 +49,6 @@ class CopyCommand(CommandStrategy):
         if not resp.get('structure'):
             return
 
-        # print formated structure
-        print(dumps(resp.get('structure'), indent=4))
-
         resp = to_service.copy_structure(resp, False)
 
         self.register_execution(resp)

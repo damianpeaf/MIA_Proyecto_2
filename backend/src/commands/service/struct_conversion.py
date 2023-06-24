@@ -19,6 +19,7 @@ STANDARD STRUCTURE:
       }
     ]
   }
+}
 
 """
 

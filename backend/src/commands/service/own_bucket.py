@@ -138,7 +138,7 @@ class OwnBucketService(OwnService):
         self._add_success(f'Se eliminaron todos los recursos', resp)
         return resp
 
-    def delete_content(self, relative_path: str, name: str) -> dict[str, any]:
+    def delete_content(self, relative_path: str, name: str = '') -> dict[str, any]:
         return self.delete_resource(relative_path, name)
 
     def modify_file(self, relative_path: str, body: str) -> dict[str, any]:

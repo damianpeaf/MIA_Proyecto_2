@@ -20,6 +20,18 @@ class ServerService(OwnService):
     def _get_abs_path(self, relative_path: str, aditional_resource: str = '') -> str:
         return path.join(LOCAL_ROOT_PATH, self._get_relative_path(relative_path, aditional_resource))
 
+    def _get_unique_name(self, relative_path: str, name: str) -> str:
+
+        directory_path = self._get_abs_path(relative_path)
+
+        base_name, ext = path.splitext(name)
+        index = 1
+        new_name = name
+        while path.exists(path.join(directory_path, new_name)):
+            new_name = f"{base_name}({index}){ext}"
+            index += 1
+        return new_name
+
     def create_file(self, relative_path: str, name: str, body: str, rename: bool = False) -> dict[str, any]:
         resp = self._default_response()
         target_path = self._get_abs_path(relative_path)
@@ -161,18 +173,6 @@ class ServerService(OwnService):
 
         return resp
 
-    def _get_unique_name(self, relative_path: str, name: str) -> str:
-
-        directory_path = self._get_abs_path(relative_path)
-
-        base_name, ext = path.splitext(name)
-        index = 1
-        new_name = name
-        while path.exists(path.join(directory_path, new_name)):
-            new_name = f"{base_name}({index}){ext}"
-            index += 1
-        return new_name
-
     def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
         resp = self._default_response()
 
@@ -205,7 +205,6 @@ class ServerService(OwnService):
         else:
             self._add_success('Se copió la estructura', resp)
         return resp
-
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         resp = self._default_response()

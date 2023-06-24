@@ -374,9 +374,15 @@ class OwnBucketService(OwnService):
 
         # Validate if file exists in the bucket
 
-        if not self._resource_exists(source_path) or not self._is_file(source_path):
-            return None
+        if not self._resource_exists(source_path):
+            self._add_error(f"El recurso '{from_relative_path}' no existe en el origen", resp)
+            resp['file_content'] = None
+            return resp
         
+        if not self._is_file(source_path):
+            self._add_error(f"El recurso '{from_relative_path}' no es un archivo", resp)
+            resp['file_content'] = None
+            return resp
         # Get file
 
         resource = self._s3_client.get_object(
@@ -384,6 +390,7 @@ class OwnBucketService(OwnService):
             Key=source_path
         )
 
-        resp['content'] = resource['Body'].read().decode('utf-8')
+        self._add_success(f"Se obtuvo el archivo '{from_relative_path}' correctamente", resp)
+        resp['file_content'] = resource['Body'].read().decode('utf-8')
 
         return resp

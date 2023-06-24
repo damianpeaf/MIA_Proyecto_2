@@ -30,5 +30,5 @@ def open_controller(request: OpenRequest):
     resp = service.get_file(request.name)
 
     return {
-        'content': resp.get('content')
+        'content': resp.get('file_content')
     }

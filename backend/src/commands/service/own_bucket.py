@@ -42,6 +42,7 @@ class OwnBucketService(OwnService):
         self._s3_bucket = s3_bucket
 
         self._root = self._create_root()
+        self.on_root = False
 
     def _create_root(self) -> dict[str, any]:
 
@@ -55,7 +56,12 @@ class OwnBucketService(OwnService):
         return path.join(__path, *paths).replace('\\', '/')
 
     def _get_path(self, relative_path: str, aditional_resource: str = '') -> str:
-        return self._join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource))
+
+        path = self._join(ROOT_NAME, self._get_relative_path(relative_path, aditional_resource))
+        if self.on_root:
+            path = self._get_relative_path(relative_path, aditional_resource)
+
+        return path
 
     def _is_file(self, relative_path: str) -> bool:
         return len(relative_path.split('/')[-1].split('.')) > 1
@@ -274,7 +280,8 @@ class OwnBucketService(OwnService):
                     continue
 
             if root_item['type'] == 'file':
-                self.create_file(relative_target, item_name, root_item['content'])
+                re = self.create_file(relative_target, item_name, root_item['content'])
+                print(re)
             elif root_item['type'] == 'directory':
                 self.copy_structure({
                     'target': self._join(relative_target, item_name),
@@ -360,5 +367,5 @@ class OwnBucketService(OwnService):
 
         return len(objs) > 0
 
-    def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
+    def get_file(self, from_relative_path: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

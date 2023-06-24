@@ -12,13 +12,19 @@ class ServerService(OwnService):
     def __init__(self) -> None:
         super().__init__()
         self._create_root()
+        self.on_root = False
 
     def _create_root(self) -> dict[str, any]:
         if not path.exists(LOCAL_ROOT_PATH):
             mkdir(LOCAL_ROOT_PATH)
 
     def _get_abs_path(self, relative_path: str, aditional_resource: str = '') -> str:
-        return path.join(LOCAL_ROOT_PATH, self._get_relative_path(relative_path, aditional_resource))
+
+        root = LOCAL_ROOT_PATH
+        if self.on_root:
+            root = path.abspath(getcwd())
+
+        return path.join(root, self._get_relative_path(relative_path, aditional_resource))
 
     def create_file(self, relative_path: str, name: str, body: str, rename: bool = False) -> dict[str, any]:
         resp = self._default_response()
@@ -48,7 +54,7 @@ class ServerService(OwnService):
         resp['name'] = name
         target_path = self._get_abs_path(relative_path)
 
-        makedirs(target_path, exist_ok=True) 
+        makedirs(target_path, exist_ok=True)
 
         full_path = path.join(target_path, name)
 
@@ -61,7 +67,7 @@ class ServerService(OwnService):
             else:
                 self._add_error(f'El directorio {name} ya existe', resp)
                 return resp
-        
+
         mkdir(full_path)
 
         self._add_success(f'Se creó el directorio {name}', resp)
@@ -176,7 +182,7 @@ class ServerService(OwnService):
     def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
         resp = self._default_response()
 
-        target_path =  get_response['target']
+        target_path = get_response['target']
 
         for resource in get_response['structure']:
             if resource['type'] == 'file':
@@ -188,12 +194,12 @@ class ServerService(OwnService):
                 )
                 print(self._get_warning_and_errors(status))
                 resp['msgs'] += self._get_warning_and_errors(status)
-                
+
             else:
-                response = self.create_directory(target_path, resource['name'] ,rename)
+                response = self.create_directory(target_path, resource['name'], rename)
                 directory_path = path.join(target_path, response['name'])
                 resp['msgs'] += self._get_warning_and_errors(response)
-                
+
                 if resource['content']:
                     self.copy_structure({
                         'structure': resource['content'],
@@ -205,7 +211,6 @@ class ServerService(OwnService):
         else:
             self._add_success('Se copió la estructura', resp)
         return resp
-
 
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         resp = self._default_response()
@@ -259,5 +264,5 @@ class ServerService(OwnService):
             'content': file_content
         })
 
-    def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
+    def get_file(self, from_relative_path: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

@@ -46,10 +46,9 @@ class ThirdService(ABC):
 
     def _success_in_response(self, resp: dict[str, any]) -> int:
         return len([msg for msg in resp['msgs'] if msg['type'] == CommandMsgType.SUCCESS])
-    
+
     def _get_warning_and_errors(self, resp: dict[str, any]) -> dict[str, any]:
-        return  [msg for msg in resp['msgs'] if (msg['type'] == CommandMsgType.ERROR) or (msg['type'] == CommandMsgType.WARNING)]
-        
+        return [msg for msg in resp['msgs'] if (msg['type'] == CommandMsgType.ERROR) or (msg['type'] == CommandMsgType.WARNING)]
 
     @abstractmethod
     def copy_structure(self, get_response: dict[str, any], rename: bool) -> bool:
@@ -60,7 +59,7 @@ class ThirdService(ABC):
         pass
 
     @abstractmethod
-    def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
+    def get_file(self, from_relative_path: str) -> dict[str, any]:
         pass
 
 

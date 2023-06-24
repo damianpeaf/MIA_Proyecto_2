@@ -6,6 +6,8 @@ from functools import lru_cache
 
 from commands import CommandProxy
 from auth import validate_user
+from controllers import open_controller, OpenRequest, backup_controller, BackupRequest, recovery_controller, RecoveryRequest
+
 
 app = FastAPI(
     title="Grupo 6 API",
@@ -23,8 +25,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 class CommandRequest(BaseModel):
     command: str
+
 
 @app.post("/command")
 async def command(request: CommandRequest):
@@ -37,11 +41,12 @@ async def command(request: CommandRequest):
     except NotImplementedError as e:
         # change response status code to 501
         raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail=str(e))
-    
+
 
 class AuthRequest(BaseModel):
     username: str
     password: str
+
 
 @app.post("/auth")
 async def auth(request: AuthRequest):
@@ -55,9 +60,42 @@ async def auth(request: AuthRequest):
     response = result.get('response').get_json()
     if result.get('ok'):
         return response
-    
+
     # change response status code to 401
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=response)
+
+
+@app.post('/open')
+async def open(request: OpenRequest):
+    try:
+        return open_controller(request)
+    except Exception as e:
+        return {
+            'content': None
+        }
+
+
+@app.post("/backup")
+async def backup(request: BackupRequest):
+    try:
+        return backup_controller(request)
+    except Exception as e:
+        print(e)
+        return {
+            "status": False
+        }
+
+
+@app.post("/recovery")
+async def recovery(request: RecoveryRequest):
+    try:
+        return recovery_controller(request)
+    except Exception as e:
+        print(e)
+        return {
+            "structure": None
+        }
+
 
 @app.get("/health")
 def health() -> dict:

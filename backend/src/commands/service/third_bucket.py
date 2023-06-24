@@ -15,5 +15,5 @@ class ThirdBucketService(ThirdService):
     def get_structure(self, from_relative_path: str, to_relative_path: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_structure no implementada')
 
-    def get_file(self, from_relative_path: str, name: str) -> dict[str, any]:
+    def get_file(self, from_relative_path: str) -> dict[str, any]:
         raise NotImplementedError(f'función get_file no implementada')

@@ -1,4 +1,4 @@
-from .common_validators import is_enviroment, get_enviroment, is_ip, is_port
+from .common_validators import is_environment, get_enviroment, is_ip, is_port
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 from ..config import FullCommandEnvironment
@@ -7,7 +7,7 @@ open_validations = [
     {
         "param_name": "type",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "ip",

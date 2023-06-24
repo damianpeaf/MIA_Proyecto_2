@@ -1,4 +1,4 @@
-from .common_validators import is_path, is_enviroment, get_enviroment, is_ip, is_port
+from .common_validators import is_path, is_environment, get_enviroment, is_ip, is_port
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 from ..config import FullCommandEnvironment
@@ -7,12 +7,12 @@ backup_validations = [
     {
         "param_name": "type_to",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "type_from",
         "obligatory": True,
-        "validator": lambda x: is_enviroment(x)
+        "validator": lambda x: is_environment(x)
     },
     {
         "param_name": "ip",
@@ -34,11 +34,11 @@ backup_validations = [
 
 class BackupCommand(CommandStrategy):
 
-    def __init__(self, args: dict[str, str], response : CommandResponse):
+    def __init__(self, args: dict[str, str], response: CommandResponse):
         super().__init__("backup", args,  backup_validations, response)
 
     def execute(self):
-        
+
         type_to = get_enviroment(self.args.get('type_to'))
         type_from = get_enviroment(self.args.get('type_from'))
         ip = self.args.get('ip')
@@ -61,21 +61,23 @@ class BackupCommand(CommandStrategy):
 
         from_service = self.get_service_adapter(type_from, ip=ip, port=port)
 
-
         # get structure that will be backuped
-        resp = to_service.get_strucutre('/', f"/{name}")
+        resp = to_service.get_structure('/', '/')
 
         self.register_execution(resp)
 
         if not resp.get('structure'):
             return
-        
+
+        # ?!?! add backup folder to structure <- idk if this is right
+        resp['structure'] = [
+            {
+                "type": "directory",
+                "name": name,
+                "content": resp.get('structure')
+            }
+        ]
+
         # transfer structure to backup
-        resp = from_service.copy_structure(resp.get('structure'), False)
+        resp = from_service.copy_structure(resp, False)
         self.register_execution(resp)
-
-
-
-        
-
-       

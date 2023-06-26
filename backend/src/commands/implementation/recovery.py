@@ -1,4 +1,4 @@
-from .common_validators import is_environment, get_enviroment, is_ip, is_port
+from .common_validators import is_environment, get_enviroment, is_ip, is_port, third_service_validation
 from ..strategy import CommandStrategy
 from ..response import CommandResponse
 from ..config import FullCommandEnvironment
@@ -45,29 +45,23 @@ class RecoveryCommand(CommandStrategy):
         port = self.args.get('port')
         name = self.args.get('name')
 
-        to_service = self.get_service_adapter(type_to)
-
-        if ip and port and type_from == FullCommandEnvironment.SERVER:
-            self.warning('Se tomara el puerto y la ip del bucket de destino para el recovery en vez del servidor')
-
-        if (not ip and port):
-            self.warning("Faltó especificar la ip del servidor de destino, se tomara el especificado en 'type_from'")
-
-        if (ip and not port):
-            self.warning("Faltó especificar el puerto del servidor de destino, se tomara el especificado en 'type_from'")
+        if not third_service_validation(self, type_from, type_to, ip, port):
+            return
 
         if ip and port:
             type_from = FullCommandEnvironment.THIRD
 
+        to_service = self.get_service_adapter(type_to)
         from_service = self.get_service_adapter(type_from, ip=ip, port=port)
 
         # get structure that will be recoveryed
-        resp = to_service.get_structure(f'/{name}', '/')
+        from_service.on_root = True
+        resp = from_service.get_structure(f'/{name}', '/')
         self.register_execution(resp)
 
         if not resp.get('structure'):
             return
 
         # transfer structure to recovery
-        resp = from_service.copy_structure(resp, False)
+        resp = to_service.copy_structure(resp, False)
         self.register_execution(resp)

@@ -50,11 +50,13 @@ class BackupCommand(CommandStrategy):
         if not third_service_validation(self, type_from, type_to, ip, port):
             return
 
+        _initial_to_target = None
         if ip and port:
+            _initial_to_target = type_to
             type_to = FullCommandEnvironment.THIRD
 
         from_service = self.get_service_adapter(type_from)
-        to_service = self.get_service_adapter(type_to, ip=ip, port=port, name=name, type_=type_to)
+        to_service = self.get_service_adapter(type_to, ip=ip, port=port, name=name, type_=_initial_to_target)
 
         # get structure that will be backuped
         resp = from_service.get_structure('/', f'{name}/')

@@ -1,4 +1,4 @@
-
+import json
 from dotenv import load_dotenv
 from os import getenv, path
 import boto3
@@ -73,8 +73,8 @@ class OwnBucketService(OwnService):
         full_path = self._join(target_path, name)
 
         if not self._is_file(full_path):
-            self._add_error(f'El archivo {name} no tiene extensión', resp)
-            return resp
+            self._add_warning(f'El archivo {name} no tiene extensión, se le agregó la extensión .txt por defecto', resp)
+            full_path += '.txt'
 
         # validate if file exists in the bucket
         obj = list(self._s3_bucket.objects.filter(Prefix=full_path))
@@ -180,21 +180,33 @@ class OwnBucketService(OwnService):
         resp = self._default_response()
 
         target_path = self._get_path(relative_path)
-        new_path = target_path.replace(target_path.split('/')[-1], new_name)
         is_file = len(target_path.split('/')[-1].split('.')) > 1
+
+        if is_file:
+            if not self._is_file(new_name):
+                self._add_warning(f'El archivo original tiene extensión, pero el nuevo nombre no, se le agregó la extensión .txt por defecto', resp)
+                new_name += '.txt'
+
+        formated_target_path = target_path if target_path[-1] != '/' else target_path[:-1]
+        new_path = target_path.replace(formated_target_path.split('/')[-1], new_name)
+
+        print(json.dumps({
+            'target_path': target_path,
+            'new_path': new_path,
+            'relative_path': relative_path,
+            'new_name': new_name,
+
+        }))
 
         # validate if file exists in the bucket
 
-        obj = list(self._s3_bucket.objects.filter(Prefix=target_path))
-
-        if len(obj) == 0:
+        if not self._resource_exists(target_path):
             self._add_error(f'El recurso {relative_path} no existe', resp)
             return resp
 
         # Check if new name exists
-        obj = list(self._s3_bucket.objects.filter(Prefix=new_path))
 
-        if len(obj) > 0:
+        if self._resource_exists(new_path):
             self._add_error(f'El recurso {new_name} ya existe', resp)
             return resp
 
@@ -203,7 +215,8 @@ class OwnBucketService(OwnService):
             if is_file:
                 self._rename_resource(new_path, target_path)
             else:
-                for obj in self._s3_bucket.objects.filter(Prefix=target_path):
+                objs = self._s3_bucket.objects.filter(Prefix=target_path)
+                for obj in objs:
                     new_key = obj.key.replace(target_path, new_path)
                     self._rename_resource(new_key, obj.key)
 
@@ -378,7 +391,7 @@ class OwnBucketService(OwnService):
             self._add_error(f"El recurso '{from_relative_path}' no existe en el origen", resp)
             resp['file_content'] = None
             return resp
-        
+
         if not self._is_file(source_path):
             self._add_error(f"El recurso '{from_relative_path}' no es un archivo", resp)
             resp['file_content'] = None

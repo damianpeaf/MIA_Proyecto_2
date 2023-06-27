@@ -71,6 +71,7 @@ export const useDashboard = () => {
             if(command.trim() === '') continue;
 
             const loadingToast = toast.loading('Esperando al servidor...');
+
             try {
                 const response: ConsoleOutputResponse = await fetchCommand(command);
                 setConsoleOutput(prev => prev.concat({
@@ -79,6 +80,17 @@ export const useDashboard = () => {
                 }));
                 toast.success('Solicitud completada correctamente', { id: loadingToast });
             } catch (error) {
+                setConsoleOutput(prev => prev.concat({
+                    'command': command,
+                   response:{
+                    output: [],
+                    "overall_status": false,
+                    "data": {
+                    }
+                   }
+                    
+                }));
+                console.log(error)
                 toast.error('Error al procesar la solicitud', { id: loadingToast });
             }
         }

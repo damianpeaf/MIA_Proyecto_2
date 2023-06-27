@@ -368,4 +368,29 @@ class OwnBucketService(OwnService):
         return len(objs) > 0
 
     def get_file(self, from_relative_path: str) -> dict[str, any]:
-        raise NotImplementedError(f'función get_file no implementada')
+        resp = self._default_response()
+
+        source_path = self._get_path(from_relative_path)
+
+        # Validate if file exists in the bucket
+
+        if not self._resource_exists(source_path):
+            self._add_error(f"El recurso '{from_relative_path}' no existe en el origen", resp)
+            resp['file_content'] = None
+            return resp
+        
+        if not self._is_file(source_path):
+            self._add_error(f"El recurso '{from_relative_path}' no es un archivo", resp)
+            resp['file_content'] = None
+            return resp
+        # Get file
+
+        resource = self._s3_client.get_object(
+            Bucket=AWS_BUCKET_NAME,
+            Key=source_path
+        )
+
+        self._add_success(f"Se obtuvo el archivo '{from_relative_path}' correctamente", resp)
+        resp['file_content'] = resource['Body'].read().decode('utf-8')
+
+        return resp

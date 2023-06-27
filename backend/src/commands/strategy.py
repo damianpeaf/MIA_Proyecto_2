@@ -6,6 +6,8 @@ from .service import ServerService, OwnBucketService, ThirdBucketService
 from .validator import ParamValidator
 from .response import CommandResponse, IOType, CommandMsgType
 from .config import FullCommandEnvironment
+
+
 class CommandStrategy(ABC):
 
     """
@@ -28,8 +30,6 @@ class CommandStrategy(ABC):
         self.response = response
         self._validator = ParamValidator(self.command_name, validations, self.response)
 
-     
-
     def validate_params(self):
         return self._validator.validate(self.args)
 
@@ -51,21 +51,23 @@ class CommandStrategy(ABC):
 
         if enviroment == FullCommandEnvironment.SERVER:
             return ServerService()
-        elif enviroment == FullCommandEnvironment.BUCKET:   
+        elif enviroment == FullCommandEnvironment.BUCKET:
             return OwnBucketService()
         elif enviroment == FullCommandEnvironment.THIRD:
-            port = kwargs.get('port')
-            ip = kwargs.get('ip')
-            return ThirdBucketService(ip, port)
+            port = kwargs.get('port', None)
+            ip = kwargs.get('ip', None)
+            name = kwargs.get('name', None)
+            type_ = kwargs.get('type_', None)
+            return ThirdBucketService(ip, port, name, type_)
 
         raise Exception(f"Invalid enviroment: {enviroment}")
 
-    def register_execution(self, response : dict[str, any]):
-        
+    def register_execution(self, response: dict[str, any]):
+
         try:
             if response is None:
                 raise Exception("Invalid response, response is None")
-            
+
             response['msgs']
         except KeyError:
             raise Exception("Invalid response, msgs key not found")
@@ -73,7 +75,7 @@ class CommandStrategy(ABC):
         for msg in response.get('msgs'):
 
             msg_type = msg.get('type')
-            
+
             if msg_type == CommandMsgType.SUCCESS:
                 self.success(msg.get('msg'))
             elif msg_type == CommandMsgType.WARNING:
@@ -84,14 +86,13 @@ class CommandStrategy(ABC):
                 self.info(msg.get('msg'))
             else:
                 raise Exception(f"Invalid message type: {msg_type}")
-            
 
     def compute_overall_status(self):
         for msg in self.response.output:
             if msg['msg_type'] == CommandMsgType.ERROR.name:
                 self.response.overall_status = False
                 return
-            
+
         self.response.overall_status = True
 
     @abstractmethod

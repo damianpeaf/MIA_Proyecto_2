@@ -265,4 +265,18 @@ class ServerService(OwnService):
         })
 
     def get_file(self, from_relative_path: str) -> dict[str, any]:
-        raise NotImplementedError(f'función get_file no implementada')
+        resp = self._default_response()
+
+        source_path = self._get_abs_path(from_relative_path)
+
+        if not path.exists(source_path) or path.isdir(source_path):
+            self._add_error(f'El archivo {from_relative_path} no existe', resp)
+            resp['file_content'] = None
+            return resp
+        
+        with open(source_path, 'r') as f:
+            resp['file_content'] = f.read()
+
+        self._add_success(f'Se obtuvo el archivo {from_relative_path}', resp)
+        return resp
+        

@@ -1,4 +1,5 @@
 import { FC } from "react"
+import { FileContentDialog } from "../"
 import { ConsoleOutputI } from "../../api/api.types"
 
 const styles:
@@ -19,29 +20,52 @@ export const ConsoleOutput: FC<ConsoleOutputI> = (
     }
 ) => {
 
-    return (
-        <>
-            <div className={`text-sm border-b-[1px] px-2 py-4 border-gray-300`}>
-                <p className={`font-semibold  text-[#5C6D74] mb-2`}>  {command}</p>
-                {
-                    response && response.output.map(({ msg_type, message, io_type, date }, index) => (
 
-                        <p key={index} className={`${styles[msg_type]} p-2`}>
-                            <span className="text-xs">
+    if (response) {
+        const { data, output } = response
+
+        // If data.file_content is not null, then, wrap the success message in a button to display the file content
+
+        return (
+            <>
+                <div className={`text-sm border-b-[1px] px-2 py-4 border-gray-300`}>
+                    <p className={`font-semibold  text-[#5C6D74] mb-2`}>  {command}</p>
+                    {
+                        output.map(({ msg_type, message, io_type, date }, index) => (
+
+                            <p key={index} className={`${styles[msg_type]} p-2`}>
+                                <span className="text-xs">
+                                    {
+                                        new Date(date).toLocaleTimeString()
+                                    }
+                                </span>
                                 {
-                                    new Date(date).toLocaleTimeString()
+                                    `${io_type === "INPUT" ? ">> " : "<< "}`
                                 }
-                            </span>
-                            {
-                                `
-                                ${io_type === "INPUT" ? ">>" : "<<"} ${message}
-                                `
-                            }
-                        </p>
-                    ))
-                }
+                                {
+                                    ((msg_type === 'SUCCESS') && data.file_content) ? (
+                                        <FileContentDialog
+                                            fileContent={data.file_content}
+                                            message={message}
+                                        />
+                                    )
+                                        :
+                                        (
+                                            message
+                                        )
+                                }
+                            </p>
 
-            </div>
-        </>
+                        ))
+                    }
+                </div>
+
+            </>
+        )
+    }
+
+    return (
+        <></>
     )
+
 }

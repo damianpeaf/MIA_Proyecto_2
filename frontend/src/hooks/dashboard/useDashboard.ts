@@ -65,7 +65,11 @@ export const useDashboard = () => {
     };
 
     const handleExecuteCommand = async () => {
-        contentFromFile.forEach(async (command) => {
+        
+        for (const command of contentFromFile) {
+
+            if(command.trim() === '') continue;
+
             const loadingToast = toast.loading('Esperando al servidor...');
             try {
                 const response: ConsoleOutputResponse = await fetchCommand(command);
@@ -77,7 +81,7 @@ export const useDashboard = () => {
             } catch (error) {
                 toast.error('Error al procesar la solicitud', { id: loadingToast });
             }
-        });
+        }
 
         if (fileInputRef.current) {
             fileInputRef.current.value = '';

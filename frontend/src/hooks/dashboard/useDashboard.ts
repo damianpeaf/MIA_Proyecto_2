@@ -67,6 +67,9 @@ export const useDashboard = () => {
     const handleExecuteCommand = async () => {
         
         for (const command of contentFromFile) {
+
+            if(command.trim() === '') continue;
+
             const loadingToast = toast.loading('Esperando al servidor...');
             try {
                 const response: ConsoleOutputResponse = await fetchCommand(command);

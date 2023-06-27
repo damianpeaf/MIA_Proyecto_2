@@ -89,7 +89,7 @@ class ThirdBucketService(ThirdService):
         resp = self._default_response()
 
         # recovery endpoint
-        data = self._post_request('recovery', {
+        data = self._post_request('open', {
             'name': self.name,
             'type': self._get_type(),
         })

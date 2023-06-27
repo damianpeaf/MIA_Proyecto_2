@@ -42,10 +42,11 @@ class OpenCommand(CommandStrategy):
         if not third_service_validation(self, type_from, None, ip, port):
             return
 
+        _initial_to_target = type_from
         if ip and port:
             type_from = FullCommandEnvironment.THIRD
 
-        from_service = self.get_service_adapter(type_from, ip=ip, port=port)
+        from_service = self.get_service_adapter(type_from, ip=ip, port=port, name=name, type_=_initial_to_target)
 
         resp = from_service.get_file(name)
         self.register_execution(resp)

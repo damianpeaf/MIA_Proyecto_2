@@ -50,7 +50,7 @@ class ThirdBucketService(ThirdService):
 
         if data is None:
             self._add_error('No se pudo conectar con el destino remoto', resp)
-            return False
+            return resp
 
         status = data.get('status')
 

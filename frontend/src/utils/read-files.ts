@@ -1,4 +1,4 @@
-export const readFiles = async (files: FileList): Promise<string[]> => {
+export const readFile = async (files: FileList): Promise<string[]> => {
     const promises = Array.from(files).map((file) => {
         return new Promise<string>((resolve, reject) => {
             const reader = new FileReader();

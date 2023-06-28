@@ -1,6 +1,7 @@
 import { Toaster } from "react-hot-toast"
-import { useMediaQuery } from "./hooks";
 import { BrowserRouter } from "react-router-dom";
+
+import { useMediaQuery } from "./hooks";
 import { AppRoute } from "./router";
 
 export const App = () => {

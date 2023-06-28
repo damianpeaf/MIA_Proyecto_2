@@ -1,7 +1,8 @@
 import { useContext, useRef, useState } from "react";
-import { readFiles } from "../../utils";
-import { AuthContext } from "../../context";
 import toast from 'react-hot-toast';
+
+import { readFile } from "../../utils";
+import { AuthContext } from "../../context";
 import fetchCommand from "../../api/commandAPI";
 import { ConsoleOutputI, ConsoleOutputResponse } from "../../api/api.types";
 
@@ -17,7 +18,7 @@ export const useDashboard = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
-        readFiles(files)
+        readFile(files)
             .then((data) => {
                 setContentFromFile(data[0].split('\n'));
                 toast.success('Archivo cargado correctamente');
@@ -65,10 +66,10 @@ export const useDashboard = () => {
     };
 
     const handleExecuteCommand = async () => {
-        
+
         for (const command of contentFromFile) {
 
-            if(command.trim() === '') continue;
+            if (command.trim() === '') continue;
 
             const loadingToast = toast.loading('Esperando al servidor...');
             try {

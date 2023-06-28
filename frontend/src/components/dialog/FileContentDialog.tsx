@@ -1,5 +1,5 @@
-import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, FC, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
 
 interface Props {
     fileContent: string;

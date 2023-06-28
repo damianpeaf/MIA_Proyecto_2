@@ -3,8 +3,6 @@ import { PublicRoute, PrivateRoute } from "./";
 import { DashboardPage, LoginPage } from "../pages";
 
 export const AppRoute = () => {
-    const status = 'authenticated';
-
     return (
         <>
             <Routes>
